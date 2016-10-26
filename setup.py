@@ -5,13 +5,12 @@ except ImportError: from distutils.core import setup
 
 import versioneer
 
-here = os.path.abspath(os.path.dirname(__file__))
-
 setup(
     name='mkauthlist',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description="Set of simple tools for working in DES.",
+    long_description="See README on GitHub: https://github.com/kadrlica/mkauthlist",
     url='https://github.com/kadrlica/mkauthlist',
     author='Alex Drlica-Wagner',
     author_email='kadrlica@fnal.gov',
