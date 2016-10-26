@@ -27,7 +27,7 @@ setup(
     keywords='latex des',
     classifiers = [
         'Programming Language :: Python',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Natural Language :: English',
         'Intended Audience :: Science/Research',
     ]
