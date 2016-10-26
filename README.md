@@ -11,7 +11,7 @@ Make long latex author lists from csv files.
 Installation
 ------------
 
-The ``mkauthlist`` script is distributed via ``pip`` and should work on Python version >= 2.7:
+The ``mkauthlist`` script is distributed via ``pip`` and should work on Python 2.7 or later:
 
 ```text
 > pip install mkauthlist
