@@ -5,7 +5,7 @@ python:
   - "3.5"
 #  - "nightly" # currently points to 3.6-dev
 
-sudo: false
+sudo: true
 
 notifications:
   email: false
