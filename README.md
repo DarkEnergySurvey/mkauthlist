@@ -1,6 +1,6 @@
 [![Build](https://img.shields.io/travis/kadrlica/mkauthlist.svg)](https://travis-ci.org/kadrlica/mkauthlist)
 [![PyPI](https://img.shields.io/pypi/v/mkauthlist.svg)](https://pypi.python.org/pypi/mkauthlist)
-[![Release](https://img.shields.io/github/release/kadrlica/mkauthlist.svg)](../../releases)
+[![Downloads](https://img.shields.io/github/downloads/atom/atom/total.svg)(../../)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../)
 
 mkauthlist
