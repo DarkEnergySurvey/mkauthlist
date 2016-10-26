@@ -3,14 +3,14 @@ import os
 try: from setuptools import setup
 except ImportError: from distutils.core import setup
 
-here = os.path.abspath(os.path.dirname(__file__))
+import versioneer
 
-def read(filename):
-    return open(os.path.join(here,filename)).read()
+here = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name='mkauthlist',
-    version="0.1.0",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Set of simple tools for working in DES.",
     url='https://github.com/kadrlica/mkauthlist',
     author='Alex Drlica-Wagner',
@@ -22,7 +22,6 @@ setup(
         'python >= 2.7.0',
         'numpy >= 1.6.1',
     ],
-    long_description=read('README.rst'),
     platforms='any',
     keywords='latex des',
     classifiers = [

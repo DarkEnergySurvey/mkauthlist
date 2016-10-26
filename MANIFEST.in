@@ -1,0 +1,2 @@
+include versioneer.py
+include mkauthlist/_version.py
