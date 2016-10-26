@@ -5,6 +5,9 @@ except ImportError: from distutils.core import setup
 
 import versioneer
 
+if sys.version_info[:2] < (2, 7):
+    raise RuntimeError("Python version >= 2.7 required.")
+
 setup(
     name='mkauthlist',
     version=versioneer.get_version(),
@@ -18,7 +21,6 @@ setup(
     scripts = ['bin/mkauthlist'],
     packages = ['mkauthlist'],
     install_requires=[
-        'python >= 2.7.0',
         'numpy >= 1.6.1',
     ],
     platforms='any',

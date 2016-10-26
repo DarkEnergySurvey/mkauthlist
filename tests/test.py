@@ -7,7 +7,6 @@ __author__ = "Alex Drlica-Wagner"
 import logging
 import subprocess
 
-latex = "pdflatex -interaction=nonstopmode %(tex)s"
 
 params = dict(
     input = 'data/example_author_list.csv',
@@ -32,17 +31,19 @@ def teardown_func():
     print cmd
     subprocess.check_call(cmd,shell=True)
 
-def test():
+def test_mkauthlist():
     cmd = "mkauthlist -f --doc --sort -j emulateapj %(csv)s %(tex)s"%params
     print cmd
     subprocess.check_call(cmd,shell=True)
 
-    cmd = latex%params
-    print cmd
-    subprocess.check_call(cmd,shell=True)
+test_mkauthlist.setup = setup_func
+test_mkauthlist.teardown = teardown_func
 
-test.setup = setup_func
-test.teardown = teardown_func
+#def test_latex()
+#    latex = "pdflatex -interaction=nonstopmode %(tex)s"
+#    cmd = latex%params
+#    print cmd
+#    subprocess.check_call(cmd,shell=True)
     
 if __name__ == "__main__":
     import argparse
