@@ -22,18 +22,18 @@ params['clean'] = [params['csv'],params['tex'],params['aux'],params['log'],param
 def setup_func():
     "set up test fixtures"
     cmd = "cp %(input)s %(csv)s"%params
-    print cmd
+    print(cmd)
     subprocess.check_call(cmd,shell=True)
 
 def teardown_func():
     "tear down test fixtures"
     cmd = "rm -f "+' '.join(params['clean'])
-    print cmd
+    print(cmd)
     subprocess.check_call(cmd,shell=True)
 
 def test_mkauthlist():
     cmd = "mkauthlist -f --doc --sort -j emulateapj %(csv)s %(tex)s"%params
-    print cmd
+    print(cmd)
     subprocess.check_call(cmd,shell=True)
 
 test_mkauthlist.setup = setup_func
@@ -50,4 +50,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     args = parser.parse_args()
 
-    test()
+    test_mkauthlist.setup()
+    test_mkauthlist()
+    test_mkauthlist.teardown()
