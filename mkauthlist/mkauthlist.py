@@ -49,12 +49,12 @@ def hack_alphabetic(data,name='da Costa'):
     hack &= (idx[-1] == True)
     hack &= (data['JoinedAsBuilder'][idx] == 'True').all()
     if hack:
-        print "%% WARNING: Hacking alphabetic order for '%s'"%name
+        print("%% WARNING: Hacking alphabetic order for '%s'"%name)
 
         # Older versions of numpy have problems inserting multiple rows...
         if int(np.__version__.replace('.','')) <= 161:
             msg = "% WARNING: Alphabetic hack only works with numpy > 1.6.1"
-            print msg
+            print(msg)
             #raise Exception(msg)
 
         entry = data[idx]
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     # FIXME: Replace umlauts to make valid CSV file
     # Things are fixed now... but we need to deal with old files.
-    print "% WARNING: Hacking umlaut escape sequence"
+    print("% WARNING: Hacking umlaut escape sequence")
     # Replace the bad CSV formatting in old files
     lines = [l.replace(r'\"',r'\""') for l in open(opts.infile).readlines()]
     # Now fix the new files that we just broke with the previous line
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
     # Hack for Munich affiliation...
     for k,v in HACK.items():
-        print "%% WARNING: Hacking '%s' ..."%k
+        print("%% WARNING: Hacking '%s' ..."%k)
         select = (np.char.count(data['Affiliation'],k) > 0)
         data['Affiliation'][select] = v
 
@@ -282,8 +282,8 @@ if __name__ == "__main__":
     if opts.aux is not None:
         aux = [r for r in csv.DictReader(open(opts.aux),['Lastname','Firstname'])]
         if len(np.unique(aux)) != len(aux):
-            print '% ERROR: Non-unique names in aux file.'
-            print open(opts.aux).read()
+            print('% ERROR: Non-unique names in aux file.')
+            print(open(opts.aux).read())
             raise Exception()
             
         raw = np.array(zip(data['Lastname'],range(len(data))))
@@ -292,15 +292,15 @@ if __name__ == "__main__":
             lastname = r['Lastname']
             match = (raw[:,0] == lastname)
             if not np.any(match):
-                print "%% WARNING: Auxiliary name %s not found"%lastname
+                print("%% WARNING: Auxiliary name %s not found"%lastname)
                 continue
 
             # Eventually deal with duplicate names... but for now throw an error.
             firstnames = np.unique(data['Firstname'][data['Lastname']==lastname])
             if not len(firstnames) == 1:
-                print '%% ERROR: Non-unique last name; order by hand.'
+                print('%% ERROR: Non-unique last name; order by hand.')
                 for f in firstnames:
-                    print f, n
+                    print(f)
                 raise Exception()
             order = np.vstack([order,raw[match]])
             raw = raw[~match]
@@ -314,9 +314,9 @@ if __name__ == "__main__":
 
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print "%% WARNING: Blank affiliation for '%s'"%d['Authorname']
+                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print "%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname'])
+                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
 
             if d['Authorname'] not in authdict.keys():
                 authdict[d['Authorname']] = [d['Affiliation']]
@@ -354,9 +354,9 @@ if __name__ == "__main__":
             
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print "%% WARNING: Blank affiliation for '%s'"%d['Authorname']
+                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print "%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname'])
+                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
 
             if (d['Affiliation'] not in affidict.keys()):
                 affidict[d['Affiliation']] = len(affidict.keys())
@@ -387,9 +387,9 @@ if __name__ == "__main__":
         affiltext = r'\address[%i]{%s}'
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print "%% WARNING: Blank affiliation for '%s'"%d['Authorname']
+                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print "%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname'])
+                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
 
             if (d['Affiliation'] not in affidict.keys()):
                 affidict[d['Affiliation']] = len(affidict.keys())
@@ -421,10 +421,10 @@ if __name__ == "__main__":
         output += authlist%params
          
     if opts.outfile is None:
-        print output
+        print(output)
     else:
         outfile = opts.outfile
         if os.path.exists(outfile) and not opts.force:
-            print "Found %s; skipping..."%outfile
+            print("Found %s; skipping..."%outfile)
         out = open(outfile,'w')
         out.write(output)
