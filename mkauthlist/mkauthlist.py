@@ -15,9 +15,18 @@ file. The PubDB should do this by default.
 affiliations. These need to be corrected by hand in the CSV file.
 
 """
-__author__ = "Alex Drlica-Wagner"
-__email__ = "kadrlica@fnal.gov"
-__version__ = "0.2.0"
+__author__  = "Alex Drlica-Wagner"
+__email__   = "kadrlica@fnal.gov"
+try: 
+    # Module is in the python path
+    from mkauthlist import __version__
+except ImportError:
+    # This file still lives in the source directory
+    from _version import get_versions
+    __version__ = get_versions()['version']
+except:
+    # This file is alone
+    __version__ = "UNKNOWN"
 
 import csv
 import numpy as np
@@ -78,7 +87,7 @@ journal2class = odict([
 
 defaults = dict(
     title = "DES Publication Title",
-    abstract=r"This is a sample document created by \texttt{authlist.py v%s}."%__version__,
+    abstract=r"This is a sample document created by \texttt{%s v%s}."%(os.path.basename(__file__),__version__),
     collaboration="The DES Collaboration"
 )
 
@@ -403,7 +412,7 @@ if __name__ == "__main__":
             
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
 
-    output  = "%% Author list file generated with: authlist.py %s \n"%(__version__ )
+    output  = "%% Author list file generated with: %s %s \n"%(parser.prog, __version__ )
     output += "%% %s \n"%(' '.join(sys.argv))
     if opts.doc:
         params['authlist'] = authlist%params
