@@ -218,42 +218,45 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description,
                                      formatter_class=formatter)
     parser.add_argument('infile',metavar='DES-XXXX-XXXX_author_list.csv',
-                        help="Input csv file from DES PubDB")
+                        help="input csv file from DES PubDB")
     parser.add_argument('outfile',metavar='DES-XXXX-XXXX_author_list.tex',
-                        nargs='?',default=None,help="Output latex file (optional).")
+                        nargs='?',default=None,help="output latex file (optional).")
     parser.add_argument('-a','--aux',metavar='order.csv',
-                        help="Auxiliary author ordering file (one lastname per line).")
+                        help="auxiliary author ordering file (one lastname per line).")
+    parser.add_argument('-c','--collab',default='DES Collaboration',
+                        help="collaboration name.")
     parser.add_argument('-d','--doc',action='store_true',
-                        help="Create standalone latex document.")
+                        help="create standalone latex document.")
     parser.add_argument('-f','--force',action='store_true',
-                        help="Force overwrite of output.")
+                        help="force overwrite of output.")
     parser.add_argument('-i','--idx',default=1,type=int,
-                        help="Starting index for aastex author list \
+                        help="starting index for aastex author list \
                         (useful for multi-collaboration papers).")
     parser.add_argument('-j','--journal',default='apj',
                         choices=sorted(journal2class.keys()),
-                        help="Journal name or latex document class.")
+                        help="journal name or latex document class.")
     parser.add_argument('-s','--sort',action='store_true',
-                        help="Alphabetize the author list (you know you want to...).")
+                        help="alphabetize the author list (you know you want to...).")
     parser.add_argument('-sb','--sort-builder',action='store_true',
-                        help="Alphabetize the builder list.")
-
+                        help="alphabetize the builder list.")
     parser.add_argument('-V','--version',action='version',
                         version='%(prog)s '+__version__,
-                        help="Print version number and exit.")
-    opts = parser.parse_args()
+                        help="print version number and exit.")
+    args = parser.parse_args()
+
+    defaults['collaboration'] = args.collab
 
     # FIXME: Replace umlauts to make valid CSV file
     # Things are fixed now... but we need to deal with old files.
     print("% WARNING: Hacking umlaut escape sequence")
     # Replace the bad CSV formatting in old files
-    lines = [l.replace(r'\"',r'\""') for l in open(opts.infile).readlines()]
+    lines = [l.replace(r'\"',r'\""') for l in open(args.infile).readlines()]
     # Now fix the new files that we just broke with the previous line
     lines = [l.replace(r'\"""',r'\""') for l in lines] 
     rows = [r for r in csv.reader(lines,skipinitialspace=True) if not r[0].startswith('#')]
     data = np.rec.fromrecords(rows[1:],names=rows[0])
 
-    if opts.sort_builder:
+    if args.sort_builder:
         build = (np.char.lower(data['JoinedAsBuilder']) == 'true')
         builder = data[build]
         #idx = np.argsort(np.char.upper(builder['Lastname']))
@@ -262,13 +265,13 @@ if __name__ == "__main__":
         builder = builder[idx]
         nonbuilder = data[~build]
         data = np.hstack([nonbuilder,builder])
-    if opts.sort: 
+    if args.sort: 
         data = data[np.argsort(np.char.upper(data['Lastname']))]
 
     # FIXME: Is this still necessary?
     data = hack_alphabetic(data, 'da Costa')
 
-    cls = journal2class[opts.journal.lower()]
+    cls = journal2class[args.journal.lower()]
     affidict = odict()
     authdict = odict()
 
@@ -279,11 +282,11 @@ if __name__ == "__main__":
         data['Affiliation'][select] = v
 
     # Pre-sort the csv file by the auxiliary file
-    if opts.aux is not None:
-        aux = [r for r in csv.DictReader(open(opts.aux),['Lastname','Firstname'])]
+    if args.aux is not None:
+        aux = [r for r in csv.DictReader(open(args.aux),['Lastname','Firstname'])]
         if len(np.unique(aux)) != len(aux):
             print('% ERROR: Non-unique names in aux file.')
-            print(open(opts.aux).read())
+            print(open(args.aux).read())
             raise Exception()
             
         raw = np.array(zip(data['Lastname'],range(len(data))))
@@ -370,11 +373,11 @@ if __name__ == "__main__":
         affiliations = []
         authors=[]
         for k,v in authdict.items():
-            author = k+affilmark%(','.join([str(_v+opts.idx) for _v in v]))
+            author = k+affilmark%(','.join([str(_v+args.idx) for _v in v]))
             authors.append(author)
          
         for k,v in affidict.items():
-            affiliation = affiltext%(v+opts.idx,k)
+            affiliation = affiltext%(v+args.idx,k)
             affiliations.append(affiliation)
             
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
@@ -403,28 +406,28 @@ if __name__ == "__main__":
         affiliations = []
         authors=[]
         for k,v in authdict.items():
-            author = r'\author[%s]{%s}'%(','.join([str(_v+opts.idx) for _v in v]),k)
+            author = r'\author[%s]{%s}'%(','.join([str(_v+args.idx) for _v in v]),k)
             authors.append(author)
          
         for k,v in affidict.items():
-            affiliation = affiltext%(v+opts.idx,k)
+            affiliation = affiltext%(v+args.idx,k)
             affiliations.append(affiliation)
             
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
 
     output  = "%% Author list file generated with: %s %s \n"%(parser.prog, __version__ )
     output += "%% %s \n"%(' '.join(sys.argv))
-    if opts.doc:
+    if args.doc:
         params['authlist'] = authlist%params
         output += document%params
     else:
         output += authlist%params
          
-    if opts.outfile is None:
+    if args.outfile is None:
         print(output)
     else:
-        outfile = opts.outfile
-        if os.path.exists(outfile) and not opts.force:
+        outfile = args.outfile
+        if os.path.exists(outfile) and not args.force:
             print("Found %s; skipping..."%outfile)
         out = open(outfile,'w')
         out.write(output)
