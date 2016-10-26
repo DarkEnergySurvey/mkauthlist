@@ -5,13 +5,16 @@ python:
   - "3.5"
 #  - "nightly" # currently points to 3.6-dev
 
-sudo: true
+sudo: false
 
 notifications:
   email: false
 
-before_install:
-- "sudo apt-get update && sudo apt-get install --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
+### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
+### sude: true
+### before_install:
+### - "sudo apt-get update"
+### - "sudo apt-get install --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
 # Setup dependencies and install package
 install:
