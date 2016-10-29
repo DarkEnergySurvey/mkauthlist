@@ -13,9 +13,9 @@ sudo: required
 
 ### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
 before_install:
-  - sudo apt-add-repository ppa:texlive-backports/ppa
+  - yes "" | sudo apt-add-repository ppa:texlive-backports/ppa
   - sudo apt-get update -y
-  - yes "" | sudo apt-get install -y --no-install-recommends
+  - sudo apt-get install -y --no-install-recommends
      texlive-fonts-recommended
      texlive-latex-extra
      texlive-latex-recommended
@@ -24,7 +24,7 @@ before_install:
      dvipng
   - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
   - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
-  - wget http://journals.aas.org/authors/aastex/aastex61.cls
+  - wget http://journals.aas.org/authors/aastex/aastex61.cls -O aastex.cls
 
 ### - " --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
