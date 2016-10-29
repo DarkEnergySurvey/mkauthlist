@@ -40,7 +40,8 @@ class TestAuthlistFunc(unittest.TestCase):
 
         cmd = "pdflatex -interaction=nonstopmode %s"%(tex)
         print(cmd)
-        subprocess.check_call(cmd,shell=True)
+        out = subprocess.check_output(cmd,shell=True)
+        print(out)
         shutil.copy(tex.replace('.tex','.pdf'),pdf)
         
     def test_mkauthlist(self):
