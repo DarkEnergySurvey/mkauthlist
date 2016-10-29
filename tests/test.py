@@ -39,6 +39,8 @@ def test_mkauthlist():
 test_mkauthlist.setup = setup_func
 test_mkauthlist.teardown = teardown_func
 
+#def test_emulateapj():
+
 #def test_latex()
 #    latex = "pdflatex -interaction=nonstopmode %(tex)s"
 #    cmd = latex%params
