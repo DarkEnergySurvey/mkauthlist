@@ -74,8 +74,8 @@ def hack_alphabetic(data,name='da Costa'):
     return data
 
 journal2class = odict([
-    #('aastex','aastex'),
-    #('revtex','revtex'),
+    ('aastex','aastex'), # This is for aastex v5.1
+    ('revtex','revtex'),
     ('apj','aastex'),
     ('emulateapj','emulateapj'),
     ('aj','aastex'),

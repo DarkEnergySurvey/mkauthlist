@@ -6,52 +6,101 @@ __author__ = "Alex Drlica-Wagner"
 
 import logging
 import subprocess
+import unittest
 
 
-params = dict(
-    input = 'data/example_author_list.csv',
-    csv= 'test_author_list.csv'
-)
-params['tex'] = params['csv'].replace('.csv','.tex')
-params['aux'] = params['csv'].replace('.csv','.aux')
-params['log'] = params['csv'].replace('.csv','.log')
-params['bib'] = params['csv'].replace('.csv','*.bib')
-params['pdf'] = params['csv'].replace('.csv','.pdf')
-params['clean'] = [params['csv'],params['tex'],params['aux'],params['log'],params['bib'],params['pdf']]
+class TestAuthlistFunc(unittest.TestCase):
 
-def setup_func():
-    "set up test fixtures"
-    cmd = "cp %(input)s %(csv)s"%params
-    print(cmd)
-    subprocess.check_call(cmd,shell=True)
+    def setUp(self):
+        input = 'data/example_author_list.csv'
 
-def teardown_func():
-    "tear down test fixtures"
-    cmd = "rm -f "+' '.join(params['clean'])
-    print(cmd)
-    subprocess.check_call(cmd,shell=True)
+        self.csv = 'test_author_list.csv'
+        self.tex = self.csv.replace('.csv','.tex')
+        self.aux = self.csv.replace('.csv','.aux')
+        self.log = self.csv.replace('.csv','.log')
+        self.bib = self.csv.replace('.csv','*.bib')
+        self.pdf = self.csv.replace('.csv','.pdf')
+        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls']
 
-def test_mkauthlist():
-    cmd = "mkauthlist -f --doc --sort -j emulateapj %(csv)s %(tex)s"%params
-    print(cmd)
-    subprocess.check_call(cmd,shell=True)
+        self.files = dict(self.__dict__)
 
-test_mkauthlist.setup = setup_func
-test_mkauthlist.teardown = teardown_func
+        cmd = "cp %s %s"%(input,self.csv)
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+         
+        cmd = "cp %s ."%(' '.join(['data/%s'%c for c in self.cls]))
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
 
-#def test_emulateapj():
+    def tearDown(self):
+        self.clean = [self.csv,self.tex,self.aux,self.log,self.bib,self.pdf] 
+        self.clean += self.cls
 
-#def test_latex()
-#    latex = "pdflatex -interaction=nonstopmode %(tex)s"
-#    cmd = latex%params
-#    print cmd
-#    subprocess.check_call(cmd,shell=True)
+        cmd = "rm -f "+' '.join(self.clean)
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+    def latex(self, tex=None):
+        if tex is None: tex = self.tex
+
+        cmd = "pdflatex -interaction=nonstopmode %s"%(tex)
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+    def test_mkauthlist(self):
+        cmd = "mkauthlist -f --doc %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+        
+        self.latex()
+
+        cmd = 'cp %s %s'%(self.pdf,'test_mkauthlist.pdf')
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+    def test_emulateapj(self):
+        cmd = "mkauthlist -f --doc -j emulateapj %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        self.latex()
+
+        cmd = 'cp %s %s'%(self.pdf,'test_emulateapj.pdf')
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+     
+    def test_mnras(self):
+        cmd = "mkauthlist -f --doc -j mnras %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        self.latex()
+
+        cmd = 'cp %s %s'%(self.pdf,'test_mnras.pdf')
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+     
+    def test_aastex(self):
+        cmd = "mkauthlist -f --doc -j aastex %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        self.latex()
+
+        cmd = 'cp %s %s'%(self.pdf,'test_aastex.pdf')
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+    def test_revtex(self):
+        cmd = "mkauthlist -f --doc -j revtex %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        self.latex()
+
+        cmd = 'cp %s %s'%(self.pdf,'test_revtex.pdf')
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
     
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description=__doc__)
-    args = parser.parse_args()
-
-    test_mkauthlist.setup()
-    test_mkauthlist()
-    test_mkauthlist.teardown()
+    unittest.main()

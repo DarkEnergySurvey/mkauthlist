@@ -19,9 +19,7 @@ before_install:
      texlive-fonts-recommended
      texlive-latex-extra
      texlive-latex-recommended
-     texlive-fonts-extra
      texlive-publishers
-     dvipng
   - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
   - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
   - wget http://journals.aas.org/authors/aastex/aastex61.cls -O aastex.cls
