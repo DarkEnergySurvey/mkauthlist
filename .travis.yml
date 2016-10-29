@@ -12,7 +12,7 @@ notifications:
 
 ### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
 
-sude: true
+sude: required
 before_install:
   - sudo apt-add-repository ppa:texlive-backports/ppa
   - sudo apt-get update -y
@@ -24,6 +24,7 @@ before_install:
      texlive-publishers
      dvipng
   - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
+  - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
 
 ### - " --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
