@@ -5,14 +5,13 @@ python:
   - "3.5"
 #  - "nightly" # currently points to 3.6-dev
 
-sudo: false
-
 notifications:
   email: false
 
-### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
 
-sude: required
+sudo: required
+
+### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
 before_install:
   - sudo apt-add-repository ppa:texlive-backports/ppa
   - sudo apt-get update -y
@@ -25,6 +24,7 @@ before_install:
      dvipng
   - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
   - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
+  - wget http://journals.aas.org/authors/aastex/aastex61.cls
 
 ### - " --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
