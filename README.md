@@ -97,7 +97,7 @@ It is possible to alphabetically sort the entire author list using the `-s, --so
 ```
 > mkauthlist --sort example_author_list.csv example_author_list.tex
 ```
-Additionally, it is possible to alphabetically sort only the authors identified as "builders" (`JoinedAsBuilder ==  True`) using the `-sb, --sort-builder` flag (for DES author lists this is usually already done in the generation of the CSV file). 
+Additionally, it is possible to alphabetically sort only the authors identified as "builders" (`JoinedAsBuilder ==  'True'`) using the `-sb, --sort-builder` flag (for DES author lists this is usually already done in the generation of the CSV file). 
 ```
 > mkauthlist --sort-builder example_author_list.csv example_author_list.tex
 ```
