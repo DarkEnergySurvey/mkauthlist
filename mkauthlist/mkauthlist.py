@@ -33,11 +33,33 @@ import numpy as np
 import os,sys
 from collections import OrderedDict as odict
 import copy
+import logging
 
 #MUNICH HACK (shouldn't be necessary any more)
 HACK = odict([
     #('Ludwig-Maximilians-Universit',r'Department of Physics, Ludwig-Maximilians-Universit\"at, Scheinerstr.\ 1, 81679 M\"unchen, Germany')
 ])
+
+def hack_umlaut(lines):
+    """
+    This hack was to avoid having the csv reader was reading umlauts
+    as escaped quote characters.
+    """
+    hacked = False
+    out = []
+    for l in lines:
+        if r'\"' in l: hacked = True
+        # Replace the bad CSV formatting in old files
+        l = l.replace(r'\"',r'\""')
+        # Now fix the new files that we just broke with the previous line
+        l = l.replace(r'\"""',r'\""')
+
+        out += [l]
+
+    if hacked:
+        logging.warn("Hacking umlaut escape sequence")
+
+    return out
 
 def hack_alphabetic(data,name='da Costa'):
     """ 
@@ -49,12 +71,12 @@ def hack_alphabetic(data,name='da Costa'):
     hack &= (idx[-1] == True)
     hack &= (data['JoinedAsBuilder'][idx] == 'True').all()
     if hack:
-        print("%% WARNING: Hacking alphabetic order for '%s'"%name)
+        logging.warn("Hacking alphabetic order for '%s'"%name)
 
         # Older versions of numpy have problems inserting multiple rows...
         if int(np.__version__.replace('.','')) <= 161:
-            msg = "% WARNING: Alphabetic hack only works with numpy > 1.6.1"
-            print(msg)
+            msg = "Alphabetic hack only works with numpy > 1.6.1"
+            logging.warn(msg)
             #raise Exception(msg)
 
         entry = data[idx]
@@ -67,7 +89,8 @@ def hack_alphabetic(data,name='da Costa'):
                 break
 
         if len(new) != len(data):
-            msg = "%% ERROR: Failed to hack '%s'"%name
+            msg = "Failed to hack '%s'"%name
+            logging.error(msg)
             raise Exception(msg)
 
         return new
@@ -239,27 +262,31 @@ if __name__ == "__main__":
                         help="alphabetize the author list (you know you want to...).")
     parser.add_argument('-sb','--sort-builder',action='store_true',
                         help="alphabetize the builder list.")
+    parser.add_argument('-v','--verbose',action='count',
+                        help="verbose output.")
     parser.add_argument('-V','--version',action='version',
                         version='%(prog)s '+__version__,
                         help="print version number and exit.")
     args = parser.parse_args()
 
+    if args.verbose == 1: level = logging.INFO
+    elif args.verbose >= 2: level = logging.DEBUG
+    else: level = logging.WARNING
+    logging.basicConfig(format="%% %(levelname)s: %(message)s", level=level)
+
     defaults['collaboration'] = args.collab
 
+    readlines = open(args.infile).readlines()
     # FIXME: Replace umlauts to make valid CSV file
     # Things are fixed now... but we need to deal with old files.
-    print("% WARNING: Hacking umlaut escape sequence")
-    # Replace the bad CSV formatting in old files
-    lines = [l.replace(r'\"',r'\""') for l in open(args.infile).readlines()]
-    # Now fix the new files that we just broke with the previous line
-    lines = [l.replace(r'\"""',r'\""') for l in lines] 
+    lines = hack_umlaut(readlines)
+
     rows = [r for r in csv.reader(lines,skipinitialspace=True) if not r[0].startswith('#')]
     data = np.rec.fromrecords(rows[1:],names=rows[0])
 
     if args.sort_builder:
         build = (np.char.lower(data['JoinedAsBuilder']) == 'true')
         builder = data[build]
-        #idx = np.argsort(np.char.upper(builder['Lastname']))
         idx = np.lexsort((np.char.upper(builder['Firstname']),
                           np.char.upper(builder['Lastname'])))
         builder = builder[idx]
@@ -277,7 +304,7 @@ if __name__ == "__main__":
 
     # Hack for Munich affiliation...
     for k,v in HACK.items():
-        print("%% WARNING: Hacking '%s' ..."%k)
+        logging.warn("Hacking '%s' ..."%k)
         select = (np.char.count(data['Affiliation'],k) > 0)
         data['Affiliation'][select] = v
 
@@ -285,7 +312,7 @@ if __name__ == "__main__":
     if args.aux is not None:
         aux = [r for r in csv.DictReader(open(args.aux),['Lastname','Firstname'])]
         if len(np.unique(aux)) != len(aux):
-            print('% ERROR: Non-unique names in aux file.')
+            logging.error('Non-unique names in aux file.')
             print(open(args.aux).read())
             raise Exception()
             
@@ -295,13 +322,13 @@ if __name__ == "__main__":
             lastname = r['Lastname']
             match = (raw[:,0] == lastname)
             if not np.any(match):
-                print("%% WARNING: Auxiliary name %s not found"%lastname)
+                logging.warn("Auxiliary name %s not found"%lastname)
                 continue
 
             # Eventually deal with duplicate names... but for now throw an error.
             firstnames = np.unique(data['Firstname'][data['Lastname']==lastname])
             if not len(firstnames) == 1:
-                print('%% ERROR: Non-unique last name; order by hand.')
+                logging.error('Non-unique last name; order by hand.')
                 for f in firstnames:
                     print(f)
                 raise Exception()
@@ -317,9 +344,10 @@ if __name__ == "__main__":
 
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
+                logging.warn("Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
+                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
+                                                             d['Lastname']))
 
             if d['Authorname'] not in authdict.keys():
                 authdict[d['Authorname']] = [d['Affiliation']]
@@ -334,7 +362,7 @@ if __name__ == "__main__":
             authors.append(author)
         params = dict(defaults,authors=''.join(authors))
 
-    ### AASTEX ###
+    ### Separate author and affiliation ###
     if cls in ['aastex','mnras','emulateapj']:
         if cls == 'aastex':
             document = aastex_document
@@ -357,9 +385,10 @@ if __name__ == "__main__":
             
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
+                logging.warn("Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
+                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
+                                                             d['Lastname']))
 
             if (d['Affiliation'] not in affidict.keys()):
                 affidict[d['Affiliation']] = len(affidict.keys())
@@ -390,9 +419,10 @@ if __name__ == "__main__":
         affiltext = r'\address[%i]{%s}'
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
-                print("%% WARNING: Blank affiliation for '%s'"%d['Authorname'])
+                logging.warn("Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '': 
-                print("%% WARNING: Blank authorname for '%s %s'"%(d['Firstname'],d['Lastname']))
+                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
+                                                             d['Lastname']))
 
             if (d['Affiliation'] not in affidict.keys()):
                 affidict[d['Affiliation']] = len(affidict.keys())
@@ -428,6 +458,6 @@ if __name__ == "__main__":
     else:
         outfile = args.outfile
         if os.path.exists(outfile) and not args.force:
-            print("Found %s; skipping..."%outfile)
+            logging.warn("Found %s; skipping..."%outfile)
         out = open(outfile,'w')
         out.write(output)
