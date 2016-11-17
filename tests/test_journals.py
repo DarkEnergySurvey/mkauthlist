@@ -27,7 +27,7 @@ class TestAuthlistFunc(unittest.TestCase):
             shutil.copy(os.path.join('data',filename),'.')
 
     def tearDown(self):
-        self.clean = [self.csv,self.tex,self.aux,self.log,self.bib,self.pdf] 
+        self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,self.pdf]
         self.clean += self.cls
 
         cmd = "rm -f "+' '.join(self.clean)
