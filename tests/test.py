@@ -73,6 +73,12 @@ class TestAuthlistFunc(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_revtex.pdf')
+
+    def test_elsevier(self):
+        cmd = "mkauthlist -f --doc -j elsevier %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+        self.latex(pdf='test_elsevier.pdf')
     
 if __name__ == "__main__":
     unittest.main()
