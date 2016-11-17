@@ -3,18 +3,21 @@
 produced by the DES Publication Database (PubDB).
 
 Some usage notes:
-(1) By default, the script does not tier or sort the author list. The
-'--sort' option does not respect tiers.
+(1) By default, the script preserves the order of the input file. The
+'--sort' option does not respect tiers (use '--sort-builder' instead).
 (2) An exact match is required to group affiliations. This should not
-be a problem for affiliations provided by the PubDB; however, be
+be a problem for affiliations provided by the DES PubDB; however, be
 careful if you are editing affiliations by hand.
-(3) The script parses quoted CSV format. Latex umlauts cause a problem
-(i.e., the Munich affiliation) and must be escaped in the CSV
-file. The PubDB should do this by default.
+(3) The script parses quoted CSV format. Latex umlauts cause problems
+(i.e., '\"') and must be escaped in the CSV file. The PubDB should do
+this by default.
 (4) There are some authors in the database with blank
 affiliations. These need to be corrected by hand in the CSV file.
-
+(5) Auxiliary author ordering (i.e, '-a, --aux') preserves the rest
+of the author list. For example, the author list will become:
+Ordered authors - Tier 1 authors - Tier 2 authors
 """
+
 __author__  = "Alex Drlica-Wagner"
 __email__   = "kadrlica@fnal.gov"
 try: 
@@ -220,16 +223,18 @@ elsevier_authlist = r"""
 """
 
 elsevier_document = r"""
-\documentclass{elsarticle}
+\documentclass[final,5p]{elsarticle}
 \begin{document}
+
+\begin{frontmatter}
 \title{%(title)s}
  
 %(authlist)s
  
-\maketitle
 \begin{abstract}
 %(abstract)s
 \end{abstract}
+\end{frontmatter}
 
 \end{document}
 """
