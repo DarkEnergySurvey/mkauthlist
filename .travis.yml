@@ -1,20 +1,34 @@
+os:
+  - linux
+#  - osx
+
 language: python
 
 python:
   - "2.7"
   - "3.5"
-#  - "nightly" # currently points to 3.6-dev
-
-sudo: false
 
 notifications:
   email: false
 
+sudo: required
+
 ### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
-### sude: true
-### before_install:
-### - "sudo apt-get update"
-### - "sudo apt-get install --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
+before_install:
+  - yes "" | sudo apt-add-repository ppa:texlive-backports/ppa
+  - sudo apt-get update -y
+  - sudo apt-get install -y --no-install-recommends
+     texlive-fonts-recommended
+     texlive-latex-extra
+     texlive-latex-recommended
+     texlive-publishers
+     texlive-generic-recommended
+
+#  - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
+#  - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
+#  - wget http://journals.aas.org/authors/aastex/aastex61.cls
+
+### - " --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
 # Setup dependencies and install package
 install:
@@ -22,13 +36,11 @@ install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
   - conda info -a
-  - conda create -q -n travis-env python=$TRAVIS_PYTHON_VERSION numpy nose -c fermipy -c astropy
+  - conda create -q -n travis-env python=$TRAVIS_PYTHON_VERSION numpy nose 
   - source activate travis-env
   - python setup.py install
 
 # command to run tests
 script: 
-  #- nosetests -v --nocapture
-  - nosetests -s tests/test.py
+  - nosetests -s --exe tests/
