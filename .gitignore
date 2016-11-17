@@ -10,3 +10,4 @@ dist
 *.out
 *.aux
 *.log
+*.spl
