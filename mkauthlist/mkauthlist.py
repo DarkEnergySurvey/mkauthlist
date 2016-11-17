@@ -268,7 +268,7 @@ if __name__ == "__main__":
                         help="alphabetize the author list (you know you want to...).")
     parser.add_argument('-sb','--sort-builder',action='store_true',
                         help="alphabetize the builder list.")
-    parser.add_argument('-v','--verbose',action='count',
+    parser.add_argument('-v','--verbose',action='count',default=0,
                         help="verbose output.")
     parser.add_argument('-V','--version',action='version',
                         version='%(prog)s '+__version__,
