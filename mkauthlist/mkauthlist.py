@@ -8,7 +8,7 @@ Some usage notes:
 (2) An exact match is required to group affiliations. This should not
 be a problem for affiliations provided by the DES PubDB; however, be
 careful if you are editing affiliations by hand.
-(3) The script parses quoted CSV format. Latex umlauts cause problems
+(3) The script parses quoted CSV format. LaTeX umlauts cause problems
 (i.e., '\"') and must be escaped in the CSV file. The PubDB should do
 this by default.
 (4) There are some authors in the database with blank
@@ -100,6 +100,7 @@ def hack_alphabetic(data,name='da Costa'):
     return data
 
 journal2class = odict([
+    ('tex','aastex'), # This is for aastex v5.1
     ('aastex','aastex'), # This is for aastex v5.1
     ('revtex','revtex'),
     ('apj','aastex'),
@@ -451,7 +452,7 @@ if __name__ == "__main__":
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
 
     output  = "%% Author list file generated with: %s %s \n"%(parser.prog, __version__ )
-    output += "%% %s \n"%(' '.join(sys.argv))
+    output += "%% %s %s \n"%(os.path.basename(sys.argv[0]),' '.join(sys.argv[1:]))
     if args.doc:
         params['authlist'] = authlist%params
         output += document%params
