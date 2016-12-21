@@ -100,18 +100,27 @@ def hack_alphabetic(data,name='da Costa'):
     return data
 
 def write_contributions(filename,data):
+    """ Write a file of author contributions. """
     logging.info("Creating contribution list...")
     if 'Contribution' not in data.dtype.names:
         logging.error("No 'Contribution' field.")
         raise Exception()
 
-    output = r'Author contributions are listed below. \\'+'\n'
+    cntrbdict = odict()
     for i,d in enumerate(data):
-        output += r'%(Authorname)s: %(Contribution)s \\'%(d) + '\n'
-        if d['Contribution'] == '':
-            logging.warn("Blank contribution for '%(Authorname)s'"%d)
+        if cntrbdict.get(d['Authorname'],d['Contribution']) != d['Contribution']:
+            logging.warn("Non-unique contribution for '%(Authorname)s'"%d)
 
-    logging.info('Writing contribution file: %s'%args.contrib)
+        cntrbdict[d['Authorname']]=d['Contribution']
+
+    output = r'Author contributions are listed below. \\'+'\n'
+    for i,(name,cntrb) in enumerate(cntrbdict.items()):
+        if cntrb == '':
+            logging.warn("Blank contribution for '%s'"%name)
+
+        output += r'%s: %s \\'%(name,cntrb.capitalize()) + '\n'
+
+    logging.info('Writing contribution file: %s'%filename)
 
     out = open(filename,'wb')
     out.write(output)
@@ -293,11 +302,11 @@ if __name__ == "__main__":
     parser.add_argument('outfile',metavar='DES-XXXX-XXXX_author_list.tex',
                         nargs='?',default=None,help="output latex file (optional).")
     parser.add_argument('-a','--aux',metavar='order.csv',
-                        help="auxiliary author ordering file (one lastname per line).")
-    parser.add_argument('-c','--collab',default='DES Collaboration',
-                        help="collaboration name.")
-    parser.add_argument('--contrib',nargs='?',const='contributions.tex',
-                        help="contribution file.")
+                        help="auxiliary author ordering file (one name per line).")
+    parser.add_argument('-c','--collab','--collaboration',
+                        default='DES Collaboration',help="collaboration name.")
+    parser.add_argument('--contrb','--contributions',nargs='?',
+                        const='contributions.tex',help="contribution file.")
     parser.add_argument('-d','--doc',action='store_true',
                         help="create standalone latex document.")
     parser.add_argument('-f','--force',action='store_true',
@@ -520,5 +529,5 @@ if __name__ == "__main__":
         out.write(output)
         out.close()
 
-    if args.contrib:
-        write_contributions(args.contrib,data)
+    if args.contrb:
+        write_contributions(args.contrb,data)
