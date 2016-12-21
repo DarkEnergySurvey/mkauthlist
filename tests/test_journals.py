@@ -13,7 +13,7 @@ class TestAuthlistFunc(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'
-        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls']
+        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls','aastex61.cls']
         self.tex = self.csv.replace('.csv','.tex')
         self.aux = self.csv.replace('.csv','.aux')
         self.out = self.csv.replace('.csv','.out')
