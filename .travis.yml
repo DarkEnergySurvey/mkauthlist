@@ -44,5 +44,5 @@ install:
 
 # command to run tests
 script: 
-  #- nosetests -s --exe tests/
-  - nosetests -s --exe tests/test_journals.py:TestAuthlistFunc.test_aastex61
+  - nosetests -s --exe tests/
+  #- nosetests -s --exe tests/test_journals.py:TestAuthlistFunc.test_aastex61

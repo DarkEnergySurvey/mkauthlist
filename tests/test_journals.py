@@ -25,7 +25,7 @@ class TestAuthlistFunc(unittest.TestCase):
 
         cmd = "cp " + ' '.join(['data/'+f for f in [self.csv]+self.cls]) + ' .'
         print(cmd)
-        subprocess.check_output(cmd,shell=True)
+        out = subprocess.check_output(cmd,shell=True)
 
         #for filename in [self.csv]+self.cls:
         #    shutil.copy(os.path.join('data',filename),'.')
@@ -44,8 +44,7 @@ class TestAuthlistFunc(unittest.TestCase):
 
         cmd = "pdflatex -interaction=nonstopmode %s"%(tex)
         print(cmd)
-        subprocess.call(cmd,shell=True)
-        #out = subprocess.check_output(cmd,shell=True)
+        out = subprocess.check_output(cmd,shell=True)
         shutil.copy(tex.replace('.tex','.pdf'),pdf)
         
     def test_mkauthlist(self):
