@@ -23,8 +23,12 @@ class TestAuthlistFunc(unittest.TestCase):
 
         self.files = dict(self.__dict__)
 
-        for filename in [self.csv]+self.cls:
-            shutil.copy(os.path.join('data',filename),'.')
+        cmd = "cp " + ' '.join(['data/'+f for f in [self.csv]+self.cls]) + ' .'
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        #for filename in [self.csv]+self.cls:
+        #    shutil.copy(os.path.join('data',filename),'.')
 
     def tearDown(self):
         self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,self.pdf]
