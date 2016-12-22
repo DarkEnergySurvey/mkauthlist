@@ -13,7 +13,7 @@ class TestAuthlistFunc(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'
-        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls']
+        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls','aastex61.cls']
         self.tex = self.csv.replace('.csv','.tex')
         self.aux = self.csv.replace('.csv','.aux')
         self.out = self.csv.replace('.csv','.out')
@@ -23,8 +23,12 @@ class TestAuthlistFunc(unittest.TestCase):
 
         self.files = dict(self.__dict__)
 
-        for filename in [self.csv]+self.cls:
-            shutil.copy(os.path.join('data',filename),'.')
+        cmd = "cp " + ' '.join(['data/'+f for f in [self.csv]+self.cls]) + ' .'
+        print(cmd)
+        out = subprocess.check_output(cmd,shell=True)
+
+        #for filename in [self.csv]+self.cls:
+        #    shutil.copy(os.path.join('data',filename),'.')
 
     def tearDown(self):
         self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,self.pdf]
@@ -41,7 +45,6 @@ class TestAuthlistFunc(unittest.TestCase):
         cmd = "pdflatex -interaction=nonstopmode %s"%(tex)
         print(cmd)
         out = subprocess.check_output(cmd,shell=True)
-        print(out)
         shutil.copy(tex.replace('.tex','.pdf'),pdf)
         
     def test_mkauthlist(self):
@@ -67,6 +70,12 @@ class TestAuthlistFunc(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_aastex.pdf')
+
+    def test_aastex61(self):
+        cmd = "mkauthlist -f --doc -j aastex61 %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+        self.latex(pdf='test_aastex61.pdf')
 
     def test_revtex(self):
         cmd = "mkauthlist -f --doc -j revtex %(csv)s %(tex)s"%self.files

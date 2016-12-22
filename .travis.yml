@@ -23,6 +23,7 @@ before_install:
      texlive-latex-recommended
      texlive-publishers
      texlive-generic-recommended
+     latex-xcolor
 
 #  - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
 #  - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
@@ -43,4 +44,6 @@ install:
 
 # command to run tests
 script: 
-  - nosetests -s --exe tests/
+  - nosetests --exe tests
+  #- nosetests --exe -s tests
+  #- nosetests --exe -s tests/test_journals.py:TestAuthlistFunc.test_aastex61

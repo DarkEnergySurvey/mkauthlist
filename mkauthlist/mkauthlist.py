@@ -72,7 +72,7 @@ def hack_alphabetic(data,name='da Costa'):
     idx = data['Lastname'] == name
     hack  = np.sum(idx) > 0
     hack &= (idx[-1] == True)
-    hack &= (data['JoinedAsBuilder'][idx] == 'True').all()
+    hack &= (get_builders(data)).all()
     if hack:
         logging.warn("Hacking alphabetic order for '%s'"%name)
 
@@ -86,7 +86,7 @@ def hack_alphabetic(data,name='da Costa'):
         new = np.delete(data,np.where(idx))
         # Count backward to try to be robust against resorted lists...
         for i,d in enumerate(new[::-1]):
-            if d['JoinedAsBuilder'].lower() != 'true': continue
+            if get_builders(d): continue
             if d['Lastname'].upper() < name.upper():
                 new = np.insert(new,len(new)-i,entry)
                 break
@@ -99,17 +99,59 @@ def hack_alphabetic(data,name='da Costa'):
         return new
     return data
 
+def get_builders(data):
+    """ Get a boolean array of the authors that are builders. """
+    if 'AuthorType' in data.dtype.names:
+        builders = (np.char.lower(data['AuthorType']) == 'builder')
+    elif 'JoinedAsBuilder' in data.dtype.names:
+        builders = (np.char.lower(data['JoinedAsBuilder']) == 'true')
+    else:
+        msg = "No builder column found."
+        raise ValueError(msg)
+
+    return builders
+
+def write_contributions(filename,data):
+    """ Write a file of author contributions. """
+    logging.info("Creating contribution list...")
+    if 'Contribution' not in data.dtype.names:
+        logging.error("No 'Contribution' field.")
+        raise Exception()
+
+    cntrbdict = odict()
+    for i,d in enumerate(data):
+        if cntrbdict.get(d['Authorname'],d['Contribution']) != d['Contribution']:
+            logging.warn("Non-unique contribution for '%(Authorname)s'"%d)
+
+        cntrbdict[d['Authorname']]=d['Contribution']
+
+    output = r'Author contributions are listed below. \\'+'\n'
+    for i,(name,cntrb) in enumerate(cntrbdict.items()):
+        if cntrb == '':
+            logging.warn("Blank contribution for '%s'"%name)
+
+        output += r'%s: %s \\'%(name,cntrb.capitalize()) + '\n'
+
+    logging.info('Writing contribution file: %s'%filename)
+
+    out = open(filename,'wb')
+    out.write(output)
+    out.close()
+
+
 journal2class = odict([
-    ('tex','aastex'), # This is for aastex v5.1
-    ('aastex','aastex'), # This is for aastex v5.1
+    ('tex','aastex61'),
     ('revtex','revtex'),
-    ('apj','aastex'),
-    ('emulateapj','emulateapj'),
-    ('aj','aastex'),
     ('prl','revtex'),
     ('prd','revtex'),
+    ('aastex','aastex'),     # This is for aastex v5.*
+    ('aastex61','aastex61'), # This is for aastex v6.1
+    ('apj','aastex61'),
+    ('apjl','aastex61'),
+    ('aj','aastex61'),
     ('mnras','mnras'),
     ('elsevier','elsevier'),
+    ('emulateapj','emulateapj'),
 ])
 
 defaults = dict(
@@ -148,7 +190,7 @@ aastex_authlist = r"""
 %(authors)s
 \\ \vspace{0.2cm} (%(collaboration)s) \\
 }
- 
+
 %(affiliations)s
 """
 
@@ -160,6 +202,28 @@ aastex_document = r"""
  
 %(authlist)s
  
+\begin{abstract}
+%(abstract)s
+\end{abstract}
+\maketitle
+\end{document}
+"""
+
+### AASTEX61 ###
+aastex61_authlist = r"""
+%(authors)s
+
+\collaboration{(%(collaboration)s)}
+"""
+
+aastex61_document = r"""
+\documentclass[twocolumn]{aastex61}
+
+\begin{document}
+\title{%(title)s}
+
+%(authlist)s
+
 \begin{abstract}
 %(abstract)s
 \end{abstract}
@@ -251,9 +315,11 @@ if __name__ == "__main__":
     parser.add_argument('outfile',metavar='DES-XXXX-XXXX_author_list.tex',
                         nargs='?',default=None,help="output latex file (optional).")
     parser.add_argument('-a','--aux',metavar='order.csv',
-                        help="auxiliary author ordering file (one lastname per line).")
-    parser.add_argument('-c','--collab',default='DES Collaboration',
-                        help="collaboration name.")
+                        help="auxiliary author ordering file (one name per line).")
+    parser.add_argument('-c','--collab','--collaboration',
+                        default='DES Collaboration',help="collaboration name.")
+    parser.add_argument('--cntrb','--contributions',nargs='?',
+                        const='contributions.tex',help="contribution file.")
     parser.add_argument('-d','--doc',action='store_true',
                         help="create standalone latex document.")
     parser.add_argument('-f','--force',action='store_true',
@@ -291,7 +357,7 @@ if __name__ == "__main__":
     data = np.rec.fromrecords(rows[1:],names=rows[0])
 
     if args.sort_builder:
-        build = (np.char.lower(data['JoinedAsBuilder']) == 'true')
+        build = get_builders(data)
         builder = data[build]
         idx = np.lexsort((np.char.upper(builder['Firstname']),
                           np.char.upper(builder['Lastname'])))
@@ -344,9 +410,16 @@ if __name__ == "__main__":
         data = data[order[:,1].astype(int)]
                     
     ### REVTEX ###
-    if cls in ['revtex']:
-        document = revtex_document
-        authlist = revtex_authlist
+    if cls in ['revtex','aastex61']:
+        if cls == 'revtex':
+            document = revtex_document
+            authlist = revtex_authlist
+        elif cls == 'aastex61':
+            document = aastex61_document
+            authlist = aastex61_authlist
+        else:
+            msg = "Unrecognized latex class: %s"%cls
+            raise Exception(msg)
 
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
@@ -386,7 +459,7 @@ if __name__ == "__main__":
             affilmark = r'$^{%s}$,'
             affiltext = r'$^{%i}$ %s\\'
         else:
-            msg = "Unrecognized LaTex class: %s"%cls
+            msg = "Unrecognized latex class: %s"%cls
             raise Exception(msg)
             
         for i,d in enumerate(data):
@@ -426,7 +499,7 @@ if __name__ == "__main__":
         for i,d in enumerate(data):
             if d['Affiliation'] == '': 
                 logging.warn("Blank affiliation for '%s'"%d['Authorname'])
-            if d['Authorname'] == '': 
+            if d['Authorname'] == '':
                 logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
                                                              d['Lastname']))
 
@@ -467,3 +540,7 @@ if __name__ == "__main__":
             logging.warn("Found %s; skipping..."%outfile)
         out = open(outfile,'w')
         out.write(output)
+        out.close()
+
+    if args.cntrb:
+        write_contributions(args.cntrb,data)
