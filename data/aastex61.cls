@@ -1,4 +1,3 @@
-%% 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% AASTeX61.cls                                  %%
 %% October 5, 2016                               %%
@@ -773,7 +772,8 @@ Typeset using \LaTeX\ {\bf modern} style in AASTeX61}
 \fi
 }%
 
-\def\frontmatter@finalspace{\vskip-24pt}%\vspace*{-\baselineskip}\vspace*{0.375in}}
+%ADW: start text on first page
+\def\frontmatter@finalspace{\vspace*{-\baselineskip}\vspace*{0.375in}}
 
 \def\@separator{\\}%
 
@@ -996,7 +996,8 @@ Typeset using \LaTeX\ {\bf modern} style in AASTeX61}
      \setcounter{footnote}{\thefront@matter@foot@note}%
      \let\footnotetext=\old@foot@note@text
      \let\footnotemark=\old@foot@note@mark
-   \clearpage
+   %ADW: start text on first page
+   %\clearpage
    \if@two@col
    \twocolumngrid
    \fi
@@ -6205,7 +6206,8 @@ needed. It will not do anything.^^J Please use
   \let\abstract\@undefined\let\endabstract\@undefined
   \titlepage@sw{%
    \vfil
-   \clearpage
+   %ADW: start text on first page
+   %\clearpage
   }{}%
 \fi
 }%
@@ -6401,14 +6403,3 @@ Deleted recent definition of \appendix, returned to earlier version
 with additions.
 
 ================
-
-
-
-
-
-
-
-
-
-
-
