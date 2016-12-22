@@ -72,7 +72,7 @@ def hack_alphabetic(data,name='da Costa'):
     idx = data['Lastname'] == name
     hack  = np.sum(idx) > 0
     hack &= (idx[-1] == True)
-    hack &= (data['JoinedAsBuilder'][idx] == 'True').all()
+    hack &= (get_builders(data)).all()
     if hack:
         logging.warn("Hacking alphabetic order for '%s'"%name)
 
@@ -86,7 +86,7 @@ def hack_alphabetic(data,name='da Costa'):
         new = np.delete(data,np.where(idx))
         # Count backward to try to be robust against resorted lists...
         for i,d in enumerate(new[::-1]):
-            if d['JoinedAsBuilder'].lower() != 'true': continue
+            if get_builders(d): continue
             if d['Lastname'].upper() < name.upper():
                 new = np.insert(new,len(new)-i,entry)
                 break
@@ -98,6 +98,18 @@ def hack_alphabetic(data,name='da Costa'):
 
         return new
     return data
+
+def get_builders(data):
+    """ Get a boolean array of the authors that are builders. """
+    if 'AuthorType' in data.dtype.names:
+        builders = (np.char.lower(data['AuthorType']) == 'builder')
+    elif 'JoinedAsBuilder' in data.dtype.names:
+        builders = (np.char.lower(data['JoinedAsBuilder']) == 'true')
+    else:
+        msg = "No builder column found."
+        raise ValueError(msg)
+
+    return builders
 
 def write_contributions(filename,data):
     """ Write a file of author contributions. """
@@ -129,16 +141,17 @@ def write_contributions(filename,data):
 
 journal2class = odict([
     ('tex','aastex61'),
-    ('aastex','aastex'), # This is for aastex v5.*
     ('revtex','revtex'),
-    ('apj','aastex'),
-    ('emulateapj','emulateapj'),
-    ('aj','aastex'),
     ('prl','revtex'),
     ('prd','revtex'),
+    ('aastex','aastex'),     # This is for aastex v5.*
+    ('aastex61','aastex61'), # This is for aastex v6.1
+    ('apj','aastex61'),
+    ('apjl','aastex61'),
+    ('aj','aastex61'),
     ('mnras','mnras'),
     ('elsevier','elsevier'),
-    ('aastex61','aastex61'), # This is for aastex v6.1
+    ('emulateapj','emulateapj'),
 ])
 
 defaults = dict(
@@ -305,7 +318,7 @@ if __name__ == "__main__":
                         help="auxiliary author ordering file (one name per line).")
     parser.add_argument('-c','--collab','--collaboration',
                         default='DES Collaboration',help="collaboration name.")
-    parser.add_argument('--contrb','--contributions',nargs='?',
+    parser.add_argument('--cntrb','--contributions',nargs='?',
                         const='contributions.tex',help="contribution file.")
     parser.add_argument('-d','--doc',action='store_true',
                         help="create standalone latex document.")
@@ -344,7 +357,7 @@ if __name__ == "__main__":
     data = np.rec.fromrecords(rows[1:],names=rows[0])
 
     if args.sort_builder:
-        build = (np.char.lower(data['JoinedAsBuilder']) == 'true')
+        build = get_builders(data)
         builder = data[build]
         idx = np.lexsort((np.char.upper(builder['Firstname']),
                           np.char.upper(builder['Lastname'])))
@@ -529,5 +542,5 @@ if __name__ == "__main__":
         out.write(output)
         out.close()
 
-    if args.contrb:
-        write_contributions(args.contrb,data)
+    if args.cntrb:
+        write_contributions(args.cntrb,data)
