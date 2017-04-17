@@ -130,7 +130,7 @@ def write_contributions(filename,data):
         if cntrb == '':
             logging.warn("Blank contribution for '%s'"%name)
 
-        output += r'%s: %s \\'%(name,cntrb.capitalize()) + '\n'
+        output += r'%s: %s \\'%(name,cntrb) + '\n'
 
     logging.info('Writing contribution file: %s'%filename)
 
