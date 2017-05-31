@@ -1,9 +1,9 @@
 Lastname,Firstname,Authorname,JoinedAsBuilder,Affiliation,Contribution,Email
-Melchior,Peter,P.~Melchior,False,"Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton, NJ 08544, USA",,
-Drlica-Wagner,Alex,A.~Drlica-Wagner,False,"Fermi National Accelerator Laboratory, P. O. Box 500, Batavia, IL 60510, USA",,
-Rykoff,Eli,E.~S.~Rykoff,False,"Kavli Institute for Particle Astrophysics \& Cosmology, P. O. Box 2450, Stanford University, Stanford, CA 94305, USA",,
-Rykoff,Eli,E.~S.~Rykoff,False,"SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA",,
-Sheldon,Erin,E.~Sheldon,False,"Brookhaven National Laboratory, Bldg 510, Upton, NY 11973, USA",,
+Melchior,Peter,P.~Melchior,False,"Department of Astrophysical Sciences, Princeton University, Peyton Hall, Princeton, NJ 08544, USA","Lead designer and author",peter@melchior.net
+Drlica-Wagner,Alex,A.~Drlica-Wagner,False,"Fermi National Accelerator Laboratory, P. O. Box 500, Batavia, IL 60510, USA","Exposure checker tutorial",
+Rykoff,Eli,E.~S.~Rykoff,False,"Kavli Institute for Particle Astrophysics \& Cosmology, P. O. Box 2450, Stanford University, Stanford, CA 94305, USA","Data quality expert",
+Rykoff,Eli,E.~S.~Rykoff,False,"SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA","Data quality expert",
+Sheldon,Erin,E.~Sheldon,False,"Brookhaven National Laboratory, Bldg 510, Upton, NY 11973, USA","Data backend",
 Abbott,Tim,T. M. C.~Abbott,True,"Cerro Tololo Inter-American Observatory, National Optical Astronomy Observatory, Casilla 603, La Serena, Chile",,
 Abdalla,Filipe,F.~B.~Abdalla,True,"Department of Physics \& Astronomy, University College London, Gower Street, London, WC1E 6BT, UK",,
 Abdalla,Filipe,F.~B.~Abdalla,True,"Department of Physics and Electronics, Rhodes University, PO Box 94, Grahamstown, 6140, South Africa",,
