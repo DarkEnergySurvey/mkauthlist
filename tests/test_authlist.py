@@ -9,7 +9,7 @@ import logging
 import subprocess
 import unittest
 
-class TestAuthlistFunc(unittest.TestCase):
+class TestAuthlist(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'
@@ -32,12 +32,13 @@ class TestAuthlistFunc(unittest.TestCase):
         #    shutil.copy(os.path.join('data',filename),'.')
 
     def tearDown(self):
-        self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,self.pdf,self.order]
+        self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,
+                      self.pdf,self.order,self.cntrb]
         self.clean += self.cls
 
         cmd = "rm -f "+' '.join(self.clean)
         print(cmd)
-        subprocess.check_output(cmd,shell=True)
+        #subprocess.check_output(cmd,shell=True)
 
     def latex(self, tex=None, pdf=None):
         if tex is None: tex = self.tex
@@ -49,35 +50,76 @@ class TestAuthlistFunc(unittest.TestCase):
         shutil.copy(tex.replace('.tex','.pdf'),pdf)
         
     def test_mkauthlist(self):
+        """Run 'vanilla' mkauthlist."""
         cmd = "mkauthlist -f --doc %(csv)s %(tex)s"%self.files
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_mkauthlist.pdf')
 
-    def test_author_order(self):
+    def test_order(self):
+        """Explicitly order some authors."""
         cmd = "mkauthlist -f --doc %(csv)s %(tex)s -a %(order)s"%self.files
         print(cmd)
         subprocess.check_output(cmd,shell=True)
-        self.latex(pdf='test_order.pdf')
+
+        # Shouldn't be any need to build the file
+        #self.latex(pdf='test_order.pdf')
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[1],'\\author{E.~Sheldon}\n')
+            self.assertEqual(authors[4],'\\author{A.~A.~Plazas}\n')
+            self.assertEqual(authors[5],'\\author{Y.~Zhang}\n')
+            self.assertEqual(authors[-1],'\\author{T.~M.~C.~Abbott}\n')
 
     def test_contribution(self):
+        """Write author contributions."""
         cmd = "mkauthlist -f --doc %(csv)s %(tex)s --cntrb %(cntrb)s"%self.files
         print(cmd)
         subprocess.check_output(cmd,shell=True)
-        self.latex(pdf='test_contrib.pdf')
 
-        if not os.path.exists(self.cntrb): 
-            msg = "No contributions found"
-            raise Exception(msg)
-        
-        with open(self.cntrb) as cntrb:
-            lines = cntrb.readlines()
-            msg = "Unexpected author contributions: "
-            if not lines[0].split()[0] == 'Author':
-                raise Exception(msg+'\n'+lines[0])
-                msg = "Unexpected author contributions"
-            if not lines[1].split()[0] == 'P.~Melchior:':
-                raise Exception(msg+'\n'+lines[1])
+        # Shouldn't be any need to build the file
+        #self.latex(pdf='test_contrib.pdf')
+
+        with open(self.cntrb,'r') as f:
+            lines = f.readlines()
+            self.assertEqual(lines[0],'Author contributions are listed below. \\\\\n')
+            self.assertEqual(lines[1],'P.~Melchior: Lead designer and author \\\\\n')
+            self.assertEqual(lines[-1],'T.~M.~C.~Abbott:  \\\\\n')
+
+    def test_sort(self):
+        """Sort all authors alphabetically."""
+        cmd = "mkauthlist -f --doc %(csv)s %(tex)s --sort"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[0],'\\author{T.~M.~C.~Abbott}\n')
+            self.assertEqual(authors[-1],'\\author{Y.~Zhang}\n')
+
+    def test_sort_order(self):
+        """Order some authors, sort the rest."""
+        cmd = "mkauthlist -f --doc %(csv)s %(tex)s --sort -a %(order)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[1],'\\author{E.~Sheldon}\n')
+            self.assertEqual(authors[-1],'\\author{Y.~Zhang}\n')
+
+    def test_sort_builder(self):
+        """Sort builders, but leave other authors unchanged."""
+        cmd = "mkauthlist -f --doc %(csv)s %(tex)s -sb"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[3],'\\author{E.~Sheldon}\n')
+            self.assertEqual(authors[4],'\\author{T.~M.~C.~Abbott}\n')
+            self.assertEqual(authors[-1],'\\author{Y.~Zhang}\n')
             
 if __name__ == "__main__":
     unittest.main()

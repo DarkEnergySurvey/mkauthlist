@@ -9,7 +9,7 @@ import logging
 import subprocess
 import unittest
 
-class TestJournalFunc(unittest.TestCase):
+class TestJournal(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'

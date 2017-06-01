@@ -134,7 +134,7 @@ def write_contributions(filename,data):
 
     logging.info('Writing contribution file: %s'%filename)
 
-    out = open(filename,'wb')
+    out = open(filename,'w')
     out.write(output)
     out.close()
 
@@ -374,7 +374,7 @@ if __name__ == "__main__":
     affidict = odict()
     authdict = odict()
 
-    # Hack for Munich affiliation...
+    # Hack for umlauts in affiliations...
     for k,v in HACK.items():
         logging.warn("Hacking '%s' ..."%k)
         select = (np.char.count(data['Affiliation'],k) > 0)
@@ -382,13 +382,18 @@ if __name__ == "__main__":
 
     # Pre-sort the csv file by the auxiliary file
     if args.aux is not None:
-        aux = [r for r in csv.DictReader(open(args.aux),['Lastname','Firstname'])]
+        auxcols = ['Lastname','Firstname']
+        aux = [[r[c] for c in auxcols] for r in 
+               csv.DictReader(open(args.aux),fieldnames=auxcols) 
+               if not r[auxcols[0]].startswith('#')]
+        aux = np.rec.fromrecords(aux,names=auxcols)
         if len(np.unique(aux)) != len(aux):
             logging.error('Non-unique names in aux file.')
             print(open(args.aux).read())
             raise Exception()
-            
-        raw = np.array(zip(data['Lastname'],range(len(data))))
+
+        # Ugh, python2/3 compatibility
+        raw = np.array(list(zip(data['Lastname'],list(range(len(data))))))
         order = np.empty((0,2),dtype=raw.dtype)
         for r in aux:
             lastname = r['Lastname']
