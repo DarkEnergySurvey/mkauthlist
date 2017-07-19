@@ -64,41 +64,6 @@ def hack_umlaut(lines):
 
     return out
 
-def hack_alphabetic(data,name='da Costa'):
-    """ 
-    Hack the alphabetic ordering to deal with lowercase 'da Costa'
-    This should be fixed at the DB level.
-    """
-    idx = data['Lastname'] == name
-    hack  = np.sum(idx) > 0
-    hack &= (idx[-1] == True)
-    hack &= (get_builders(data)).all()
-    if hack:
-        logging.warn("Hacking alphabetic order for '%s'"%name)
-
-        # Older versions of numpy have problems inserting multiple rows...
-        if int(np.__version__.replace('.','')) <= 161:
-            msg = "Alphabetic hack only works with numpy > 1.6.1"
-            logging.warn(msg)
-            #raise Exception(msg)
-
-        entry = data[idx]
-        new = np.delete(data,np.where(idx))
-        # Count backward to try to be robust against resorted lists...
-        for i,d in enumerate(new[::-1]):
-            if get_builders(d): continue
-            if d['Lastname'].upper() < name.upper():
-                new = np.insert(new,len(new)-i,entry)
-                break
-
-        if len(new) != len(data):
-            msg = "Failed to hack '%s'"%name
-            logging.error(msg)
-            raise Exception(msg)
-
-        return new
-    return data
-
 def get_builders(data):
     """ Get a boolean array of the authors that are builders. """
     if 'AuthorType' in data.dtype.names:
@@ -366,9 +331,6 @@ if __name__ == "__main__":
         data = np.hstack([nonbuilder,builder])
     if args.sort: 
         data = data[np.argsort(np.char.upper(data['Lastname']))]
-
-    # FIXME: Is this still necessary?
-    data = hack_alphabetic(data, 'da Costa')
 
     cls = journal2class[args.journal.lower()]
     affidict = odict()
