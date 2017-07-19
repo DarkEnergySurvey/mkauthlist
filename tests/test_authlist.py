@@ -32,13 +32,14 @@ class TestAuthlist(unittest.TestCase):
         #    shutil.copy(os.path.join('data',filename),'.')
 
     def tearDown(self):
+        """Remove intermediate files."""
         self.clean = [self.csv,self.tex,self.aux,self.out,self.log,self.bib,
                       self.pdf,self.order,self.cntrb]
         self.clean += self.cls
 
         cmd = "rm -f "+' '.join(self.clean)
         print(cmd)
-        #subprocess.check_output(cmd,shell=True)
+        subprocess.check_output(cmd,shell=True)
 
     def latex(self, tex=None, pdf=None):
         if tex is None: tex = self.tex
