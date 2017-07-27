@@ -31,38 +31,33 @@ except:
     # This file is alone
     __version__ = "UNKNOWN"
 
-import csv
-import numpy as np
 import os,sys
+import csv
 from collections import OrderedDict as odict
 import copy
+import re
 import logging
+
+import numpy as np
 
 #MUNICH HACK (shouldn't be necessary any more)
 HACK = odict([
     #('Ludwig-Maximilians-Universit',r'Department of Physics, Ludwig-Maximilians-Universit\"at, Scheinerstr.\ 1, 81679 M\"unchen, Germany')
 ])
 
-def hack_umlaut(lines):
+def check_umlaut(lines):
+    """This hack used to patch database output that was not properly
+    escaped.  Now it just prints a warning if it finds an unescaped
+    umlaut. Unescaped umlauts are fine in unquoted strings
+    (i.e. names), but are bad in quoted strings (i.e., affiliations).
     """
-    This hack was to avoid having the csv reader was reading umlauts
-    as escaped quote characters.
-    """
-    hacked = False
-    out = []
-    for l in lines:
-        if r'\"' in l: hacked = True
-        # Replace the bad CSV formatting in old files
-        l = l.replace(r'\"',r'\""')
-        # Now fix the new files that we just broke with the previous line
-        l = l.replace(r'\"""',r'\""')
-
-        out += [l]
-
-    if hacked:
-        logging.warn("Hacking umlaut escape sequence")
-
-    return out
+    pattern = re.compile(r'\\"(?!")')
+    found = False
+    for line in lines:
+        if pattern.search(line) is not None:
+            msg =  "Found unescaped umlaut: " + line.strip()
+            logging.warn(msg)
+    return lines
 
 def get_builders(data):
     """ Get a boolean array of the authors that are builders. """
@@ -314,9 +309,8 @@ if __name__ == "__main__":
     defaults['collaboration'] = args.collab
 
     readlines = open(args.infile).readlines()
-    # FIXME: Replace umlauts to make valid CSV file
-    # Things are fixed now... but we need to deal with old files.
-    lines = hack_umlaut(readlines)
+    # Check for unescaped umlauts
+    lines = check_umlaut(readlines)
 
     rows = [r for r in csv.reader(lines,skipinitialspace=True) if not r[0].startswith('#')]
     data = np.rec.fromrecords(rows[1:],names=rows[0])
