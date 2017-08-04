@@ -112,6 +112,7 @@ journal2class = odict([
     ('mnras','mnras'),
     ('elsevier','elsevier'),
     ('emulateapj','emulateapj'),
+    ('arxiv','arxiv'),
 ])
 
 defaults = dict(
@@ -263,6 +264,10 @@ elsevier_document = r"""
 
 \end{document}
 """
+
+### ARXIV ###
+arxiv_authlist = r"""%(authors)s"""
+arxiv_document = arxiv_authlist
 
 if __name__ == "__main__":
     import argparse
@@ -484,6 +489,34 @@ if __name__ == "__main__":
             affiliations.append(affiliation)
             
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
+
+    ### ARXIV ###
+    if cls in ['arxiv']:
+        document = arxiv_document
+        if args.sort:
+            authlist = '%(collaboration)s: ' + arxiv_authlist
+        else:
+            authlist = arxiv_authlist + ' (%(collaboration)s)'
+
+        for i,d in enumerate(data):
+            if d['Authorname'] == '':
+                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
+                                                             d['Lastname']))
+            if (d['Affiliation'] not in affidict.keys()):
+                affidict[d['Affiliation']] = len(affidict.keys())
+            affidx = affidict[d['Affiliation']]
+
+            if d['Authorname'] not in authdict.keys():
+                authdict[d['Authorname']] = [affidx]
+            else:
+                authdict[d['Authorname']].append(affidx)
+
+        authors=[]
+        for k,v in authdict.items():
+            author = k.replace('~',' ').replace('{','').replace('}','')
+            authors.append(author)
+
+        params = dict(defaults,authors=', '.join(authors).strip(','),affiliations='')
 
     output  = "%% Author list file generated with: %s %s \n"%(parser.prog, __version__ )
     output += "%% %s %s \n"%(os.path.basename(sys.argv[0]),' '.join(sys.argv[1:]))

@@ -88,6 +88,12 @@ class TestJournal(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_elsevier.pdf')
-    
+
+    def test_arxiv(self):
+        cmd = "mkauthlist -f -j arxiv %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+        shutil.copy(self.tex,'test_arxiv.txt')
+
 if __name__ == "__main__":
     unittest.main()
