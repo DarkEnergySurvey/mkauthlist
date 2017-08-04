@@ -493,7 +493,10 @@ if __name__ == "__main__":
     ### ARXIV ###
     if cls in ['arxiv']:
         document = arxiv_document
-        authlist = arxiv_authlist
+        if args.sort:
+            authlist = '%(collaboration)s: ' + arxiv_authlist
+        else:
+            authlist = arxiv_authlist + ' (%(collaboration)s)'
 
         for i,d in enumerate(data):
             if d['Authorname'] == '':
@@ -510,7 +513,7 @@ if __name__ == "__main__":
 
         authors=[]
         for k,v in authdict.items():
-            author = k.replace('~',' ')
+            author = k.replace('~',' ').replace('{','').replace('}','')
             authors.append(author)
 
         params = dict(defaults,authors=', '.join(authors).strip(','),affiliations='')
