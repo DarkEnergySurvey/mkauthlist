@@ -46,15 +46,20 @@ HACK = odict([
 ])
 
 def check_umlaut(lines):
-    """This hack used to patch database output that was not properly
-    escaped.  Now it just prints a warning if it finds an unescaped
-    umlaut. Unescaped umlauts are fine in unquoted strings
-    (i.e. names), but are bad in quoted strings (i.e., affiliations).
-    """
-    pattern = re.compile(r'\\"(?!")')
-    found = False
+    """Check for unescaped umlaut characters in quoted strings."""
+    #This is a problem:
+    #  ...,"Universit\"ats-Sternwarte, Fakult\"at f\"ur Physik"
+    #While this is not:
+    #  Gruen,Daniel,D.~Gr\"un,...
+
+    # The unescaped umlaut pattern: \" and not \""
+    umlaut = re.compile(r'\\"(?!")')
+    # The start of a quoted string: ,"
+    quote = re.compile(r',"')
+
     for line in lines:
-        if pattern.search(line) is not None:
+        if umlaut.search(line) is None or quote.search(line) is None: continue
+        if umlaut.search(line).start() > quote.search(line).start():
             msg =  "Found unescaped umlaut: " + line.strip()
             logging.warn(msg)
     return lines
