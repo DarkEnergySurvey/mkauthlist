@@ -358,27 +358,36 @@ if __name__ == "__main__":
             print(open(args.aux).read())
             raise Exception()
 
-        # Ugh, python2/3 compatibility
-        raw = np.array(list(zip(data['Lastname'],list(range(len(data))))))
-        order = np.empty((0,2),dtype=raw.dtype)
+        # This is probably not the cleanest way to do this...
+        raw = np.vstack([data['Lastname'],data['Firstname'],np.arange(len(data))]).T
+        order = np.empty((0,raw.shape[-1]),dtype=raw.dtype)
         for r in aux:
-            lastname = r['Lastname']
+            lastname = r['Lastname'].strip()
+            firstname = r['Firstname']
             match = (raw[:,0] == lastname)
-            if not np.any(match):
-                logging.warn("Auxiliary name %s not found"%lastname)
+
+            if firstname:
+                firstname = r['Firstname'].strip()
+                match &= (raw[:,1] == firstname)
+
+            # Check that match found
+            if np.sum(match) < 1:
+                msg = "Auxiliary name not found: %s"%(lastname)
+                if firstname: msg += ', %s'%firstname
+                logging.warn(msg)
                 continue
 
-            # Eventually deal with duplicate names... but for now throw an error.
-            firstnames = np.unique(data['Firstname'][data['Lastname']==lastname])
-            if not len(firstnames) == 1:
-                logging.error('Non-unique last name; order by hand.')
-                for f in firstnames:
-                    print(f)
-                raise Exception()
+            # Check unique firstname
+            if not len(np.unique(raw[match][:,1])) == 1:
+                msg = "Non-unique name: %s"%(lastname)
+                if firstname: msg += ', %s'%firstname
+                logging.error(msg)
+                raise ValueError(msg)
+
             order = np.vstack([order,raw[match]])
             raw = raw[~match]
         order = np.vstack([order,raw])
-        data = data[order[:,1].astype(int)]
+        data = data[order[:,-1].astype(int)]
                     
     ### REVTEX ###
     if cls in ['revtex','aastex61']:
