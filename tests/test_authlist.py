@@ -70,7 +70,7 @@ class TestAuthlist(unittest.TestCase):
             authors = [l for l in f.readlines() if l.startswith('\\author')]
             self.assertEqual(authors[1],'\\author{E.~Sheldon}\n')
             self.assertEqual(authors[4],'\\author{A.~A.~Plazas}\n')
-            self.assertEqual(authors[5],'\\author{Y.~Zhang}\n')
+            self.assertEqual(authors[6],'\\author{Y.~Zhang}\n')
             self.assertEqual(authors[-1],'\\author{T.~M.~C.~Abbott}\n')
 
     def test_contribution(self):
