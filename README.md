@@ -19,7 +19,7 @@ The ``mkauthlist`` script is distributed via ``pip`` and should work on Python 2
 You can also clone the repository and install by hand:
 
 ```text
-> git clone git@github.com:kadrlica/mkauthlist.git
+> git clone https://github.com/DarkEnergySurvey/mkauthlist.git
 > cd mkauthlist
 > python setup.py install
 ```
