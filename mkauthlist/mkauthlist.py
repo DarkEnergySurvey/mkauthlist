@@ -304,6 +304,8 @@ if __name__ == "__main__":
                         help="alphabetize the author list (you know you want to...).")
     parser.add_argument('-sb','--sort-builder',action='store_true',
                         help="alphabetize the builder list.")
+    parser.add_argument('-sn','--sort-nonbuilder',action='store_true',
+                        help="alphabetize the non-builder list.")
     parser.add_argument('-v','--verbose',action='count',default=0,
                         help="verbose output.")
     parser.add_argument('-V','--version',action='version',
@@ -325,16 +327,27 @@ if __name__ == "__main__":
     rows = [r for r in csv.reader(lines,skipinitialspace=True) if not r[0].startswith('#')]
     data = np.rec.fromrecords(rows[1:],names=rows[0])
 
+    isbuilder  = get_builders(data)
+    builder    = data[isbuilder]
+    nonbuilder = data[~isbuilder]
+
     if args.sort_builder:
-        build = get_builders(data)
-        builder = data[build]
         idx = np.lexsort((np.char.upper(builder['Firstname']),
                           np.char.upper(builder['Lastname'])))
         builder = builder[idx]
-        nonbuilder = data[~build]
-        data = np.hstack([nonbuilder,builder])
-    if args.sort: 
-        data = data[np.argsort(np.char.upper(data['Lastname']))]
+
+    if args.sort_nonbuilder:
+        idx = np.lexsort((np.char.upper(nonbuilder['Firstname']),
+                          np.char.upper(nonbuilder['Lastname'])))
+        nonbuilder = nonbuilder[idx]
+
+    data = np.hstack([nonbuilder,builder])
+
+    if args.sort:
+        idx = np.lexsort((np.char.upper(data['Firstname']),
+                          np.char.upper(data['Lastname'])))
+        data = data[idx]
+        #data = data[np.argsort(np.char.upper(data['Lastname']))]
 
     cls = journal2class[args.journal.lower()]
     affidict = odict()
