@@ -436,7 +436,7 @@ if __name__ == "__main__":
         elif cls == 'mnras':
             document = mnras_document
             authlist = mnras_authlist
-            affilmark = r'$^{%s}$,'
+            affilmark = r',$^{%s}$'
             affiltext = r'$^{%i}$ %s\\'
         else:
             msg = "Unrecognized latex class: %s"%cls
@@ -460,15 +460,21 @@ if __name__ == "__main__":
          
         affiliations = []
         authors=[]
-        for k,v in authdict.items():
-            author = k+affilmark%(','.join([str(_v+args.idx) for _v in v]))
+        for i, (k,v) in enumerate(authdict.items()):
+            affmark = affilmark%(','.join([str(_v+args.idx) for _v in v]))
+            if i+1==len(authdict):
+                # Strip trailing comma from last entry (note MNRAS comma position)
+                affmark = affmark.strip(',')
+                # Prefix 'and' on last entry (seems robust)
+                k = 'and ' + k
+            author = k + affmark
             authors.append(author)
          
         for k,v in affidict.items():
             affiliation = affiltext%(v+args.idx,k)
             affiliations.append(affiliation)
             
-        params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
+        params = dict(defaults,authors='\n'.join(authors),affiliations='\n'.join(affiliations))
 
     ### ELSEVIER ###
     if cls in ['elsevier']:
