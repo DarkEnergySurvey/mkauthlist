@@ -121,6 +121,18 @@ class TestAuthlist(unittest.TestCase):
             self.assertEqual(authors[3],'\\author{E.~Sheldon}\n')
             self.assertEqual(authors[4],'\\author{T.~M.~C.~Abbott}\n')
             self.assertEqual(authors[-1],'\\author{Y.~Zhang}\n')
-            
+
+    def test_sort_nonbuilder(self):
+        """Sort nonbuilders, but leave other authors unchanged."""
+        cmd = "mkauthlist -f --doc %(csv)s %(tex)s -sn"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[0],'\\author{A.~Drlica-Wagner}\n')
+            self.assertEqual(authors[-1],'\\author{T.~M.~C.~Abbott}\n')
+            self.assertEqual(authors[4],'\\author{Y.~Zhang}\n')
+
 if __name__ == "__main__":
     unittest.main()
