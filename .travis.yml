@@ -1,21 +1,19 @@
 os:
   - linux
-#  - osx
 
 language: python
-
 python:
   - "2.7"
-  - "3.5"
+  - "3.6"
 
 notifications:
   email: false
 
 sudo: required
 
-### # To get latex (but also need revtex4-1, emulateapj, and other classes for full test
+# To get latex and revtex4-1
 before_install:
-  - yes "" | sudo apt-add-repository ppa:texlive-backports/ppa
+  - yes "" | sudo add-apt-repository ppa:jonathonf/texlive
   - sudo apt-get update -y
   - sudo apt-get install -y --no-install-recommends
      texlive-fonts-recommended
@@ -28,8 +26,6 @@ before_install:
 #  - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
 #  - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
 #  - wget http://journals.aas.org/authors/aastex/aastex61.cls
-
-### - " --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-latex-recommended dvipng"
  
 # Setup dependencies and install package
 install:
@@ -38,7 +34,7 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes yes --set changeps1 no
   - conda info -a
-  - conda create -q -n travis-env python=$TRAVIS_PYTHON_VERSION numpy nose 
+  - conda create -q -n travis-env python=$TRAVIS_PYTHON_VERSION numpy nose -c conda-forge
   - source activate travis-env
   - python setup.py install
 
