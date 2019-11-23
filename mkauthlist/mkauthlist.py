@@ -406,11 +406,11 @@ if __name__ == "__main__":
         data = data[order[:,-1].astype(int)]
                     
     ### REVTEX ###
-    if cls in ['revtex','aastex6','aastex61']:
+    if cls in ['revtex','aastex6']:
         if cls == 'revtex':
             document = revtex_document
             authlist = revtex_authlist
-        elif cls in ['aastex6','aastex61']:
+        elif cls in ['aastex6']:
             document = aastex6_document
             authlist = aastex6_authlist
         else:
