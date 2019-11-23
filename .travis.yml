@@ -21,7 +21,7 @@ before_install:
      texlive-latex-recommended
      texlive-publishers
      texlive-generic-recommended
-     latex-xcolor
+#     latex-xcolor
 
 #  - wget http://hea-www.harvard.edu/~alexey/emulateapj/emulateapj.cls
 #  - wget http://mirror.jmu.edu/pub/CTAN/macros/latex/contrib/mnras/mnras.cls
