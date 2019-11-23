@@ -105,15 +105,16 @@ def write_contributions(filename,data):
 
 
 journal2class = odict([
-    ('tex','aastex61'),
+    ('tex','aastex6'),
     ('revtex','revtex'),
     ('prl','revtex'),
     ('prd','revtex'),
-    ('aastex','aastex'),     # This is for aastex v5.*
-    ('aastex61','aastex61'), # This is for aastex v6.1
-    ('apj','aastex61'),
-    ('apjl','aastex61'),
-    ('aj','aastex61'),
+    ('aastex','aastex6'),     # This is for aastex v6.*
+    ('aastex5','aastex'),     # This is for aastex v5.*
+    ('aastex61','aastex6'),   # This is for aastex v6.1
+    ('apj','aastex6'),
+    ('apjl','aastex6'),
+    ('aj','aastex6'),
     ('mnras','mnras'),
     ('elsevier','elsevier'),
     ('emulateapj','emulateapj'),
@@ -175,14 +176,14 @@ aastex_document = r"""
 \end{document}
 """
 
-### AASTEX61 ###
-aastex61_authlist = r"""
+### AASTEX 6.X ###
+aastex6_authlist = r"""
 %(authors)s
 
 \collaboration{(%(collaboration)s)}
 """
 
-aastex61_document = r"""
+aastex6_document = r"""
 \documentclass[twocolumn]{aastex61}
 
 \begin{document}
@@ -300,6 +301,8 @@ if __name__ == "__main__":
     parser.add_argument('-j','--journal',default='apj',
                         choices=sorted(journal2class.keys()),
                         help="journal name or latex document class.")
+    parser.add_argument('--orcid',action='store_true',
+                        help="include ORCID information (revtex and aastex).")
     parser.add_argument('-s','--sort',action='store_true',
                         help="alphabetize the author list (you know you want to...).")
     parser.add_argument('-sb','--sort-builder',action='store_true',
@@ -403,13 +406,13 @@ if __name__ == "__main__":
         data = data[order[:,-1].astype(int)]
                     
     ### REVTEX ###
-    if cls in ['revtex','aastex61']:
+    if cls in ['revtex','aastex6','aastex61']:
         if cls == 'revtex':
             document = revtex_document
             authlist = revtex_authlist
-        elif cls == 'aastex61':
-            document = aastex61_document
-            authlist = aastex61_authlist
+        elif cls in ['aastex6','aastex61']:
+            document = aastex6_document
+            authlist = aastex6_authlist
         else:
             msg = "Unrecognized latex class: %s"%cls
             raise Exception(msg)
@@ -421,14 +424,24 @@ if __name__ == "__main__":
                 logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
                                                              d['Lastname']))
 
-            if d['Authorname'] not in authdict.keys():
-                authdict[d['Authorname']] = [d['Affiliation']]
+            authorkey = '{%s}'%(d['Authorname'])
+
+            if args.orcid and d['ORCID']:
+                authorkey = '[%s]'%d['ORCID'] + authorkey
+
+            if authorkey not in authdict.keys():
+                authdict[authorkey] = [d['Affiliation']]
             else:
-                authdict[d['Authorname']].append(d['Affiliation'])
+                authdict[authorkey].append(d['Affiliation'])
+            #if d['Authorname'] not in authdict.keys():
+            #    authdict[d['Authorname']] = [d['Affiliation']]
+            #else:
+            #    authdict[d['Authorname']].append(d['Affiliation'])
 
         authors = []
         for key,val in authdict.items():
-            author = r'\author{%s}'%key+'\n'
+            #author = r'\author{%s}'%key+'\n'
+            author = r'\author%s'%key+'\n'
             for v in val:
                 author += r'\affiliation{%s}'%v+'\n'
             authors.append(author)
