@@ -88,6 +88,16 @@ class TestAuthlist(unittest.TestCase):
             self.assertEqual(lines[1],'P.~Melchior: Lead designer and author \\\\\n')
             self.assertEqual(lines[-1],'T.~M.~C.~Abbott:  \\\\\n')
 
+    def test_orcid(self):
+        """Write author ORCID."""
+        cmd = "mkauthlist -f --orcid -j apj --doc %(csv)s %(tex)s "%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+
+        with open(self.tex,'r') as f:
+            authors = [l for l in f.readlines() if l.startswith('\\author')]
+            self.assertEqual(authors[0],'\\author[0000-0002-8873-5065]{P.~Melchior}\n')
+
     def test_sort(self):
         """Sort all authors alphabetically."""
         cmd = "mkauthlist -f --doc %(csv)s %(tex)s --sort"%self.files
@@ -133,6 +143,7 @@ class TestAuthlist(unittest.TestCase):
             self.assertEqual(authors[0],'\\author{A.~Drlica-Wagner}\n')
             self.assertEqual(authors[-1],'\\author{T.~M.~C.~Abbott}\n')
             self.assertEqual(authors[4],'\\author{Y.~Zhang}\n')
+
 
 if __name__ == "__main__":
     unittest.main()

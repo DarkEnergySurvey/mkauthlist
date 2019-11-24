@@ -8,6 +8,7 @@ example_author_list.*
 
 # Random tex files
 *.tex
+*.txt
 *.pdf
 *.bib
 *.out
