@@ -103,7 +103,7 @@ def write_contributions(filename,data):
     out.write(output)
     out.close()
 
-aastex = 'aastex61' # Default aastex version
+aastex = 'aastex63' # Default aastex version
 journal2class = odict([
     ('tex',aastex),
     ('revtex','revtex'),
