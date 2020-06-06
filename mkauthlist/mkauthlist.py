@@ -110,8 +110,9 @@ journal2class = odict([
     ('prl','revtex'),
     ('prd','revtex'),
     ('aastex','aastex6'),     # This is for aastex v6.*
-    ('aastex5','aastex'),     # This is for aastex v5.*
-    ('aastex61','aastex6'),   # This is for aastex v6.1
+    ('aastex5','aastex5'),    # This is for aastex v5.1
+    ('aastex61','aastex61'),  # This is for aastex v6.1
+    ('aastex63','aastex63'),  # This is for aastex v6.3
     ('apj','aastex6'),
     ('apjl','aastex6'),
     ('aj','aastex6'),
@@ -149,8 +150,8 @@ revtex_document = r"""
 \end{document}
 """
 
-### AASTEX ###
-aastex_authlist = r"""
+### AASTEX 5 ###
+aastex5_authlist = r"""
 \def\andname{}
 
 \author{
@@ -161,7 +162,7 @@ aastex_authlist = r"""
 %(affiliations)s
 """
 
-aastex_document = r"""
+aastex5_document = r"""
 \documentclass[preprint]{aastex}
 
 \begin{document}
@@ -176,14 +177,14 @@ aastex_document = r"""
 \end{document}
 """
 
-### AASTEX 6.X ###
-aastex6_authlist = r"""
+### AASTEX 6.1 (default) ###
+aastex61_authlist = r"""
 %(authors)s
 
 \collaboration{(%(collaboration)s)}
 """
 
-aastex6_document = r"""
+aastex61_document = r"""
 \documentclass[twocolumn]{aastex61}
 
 \begin{document}
@@ -197,6 +198,15 @@ aastex6_document = r"""
 \maketitle
 \end{document}
 """
+
+### AASTEX63 ###
+aastex63_authlist = r"""
+%(authors)s
+
+\collaboration{1000}{(%(collaboration)s)}
+"""
+aastex63_document = aastex61_document
+
 
 ### EMULATEAPJ ###
 emulateapj_document = r"""
@@ -406,13 +416,16 @@ if __name__ == "__main__":
         data = data[order[:,-1].astype(int)]
                     
     ### REVTEX ###
-    if cls in ['revtex','aastex6']:
+    if cls in ['revtex','aastex6','aastex61','aastex63']:
         if cls == 'revtex':
             document = revtex_document
             authlist = revtex_authlist
-        elif cls in ['aastex6']:
-            document = aastex6_document
-            authlist = aastex6_authlist
+        elif cls in ['aastex61','aastex6']:
+            document = aastex61_document
+            authlist = aastex61_authlist
+        elif cls in ['aastex63']:
+            document = aastex63_document
+            authlist = aastex63_authlist
         else:
             msg = "Unrecognized latex class: %s"%cls
             raise Exception(msg)
@@ -450,13 +463,13 @@ if __name__ == "__main__":
     ### Separate author and affiliation ###
     if cls in ['aastex','mnras','emulateapj']:
         if cls == 'aastex':
-            document = aastex_document
-            authlist = aastex_authlist
+            document = aastex5_document
+            authlist = aastex5_authlist
             affilmark = r'\altaffilmark{%s},'
             affiltext = r'\altaffiltext{%i}{%s}'
         elif cls == 'emulateapj':
             document = emulateapj_document
-            authlist = aastex_authlist
+            authlist = aastex5_authlist
             affilmark = r'\altaffilmark{%s},'
             affiltext = r'\affil{$^{%i}$ %s}'
         elif cls == 'mnras':
