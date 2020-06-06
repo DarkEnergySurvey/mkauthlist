@@ -13,7 +13,7 @@ class TestJournal(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'
-        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls','aastex61.cls']
+        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls','aastex61.cls','aastex63.cls']
         self.tex = self.csv.replace('.csv','.tex')
         self.aux = self.csv.replace('.csv','.aux')
         self.out = self.csv.replace('.csv','.out')
@@ -76,6 +76,12 @@ class TestJournal(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_aastex61.pdf')
+
+    def test_aastex63(self):
+        cmd = "mkauthlist -f --doc -j aastex63 %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd,shell=True)
+        self.latex(pdf='test_aastex63.pdf')
 
     def test_revtex(self):
         cmd = "mkauthlist -f --doc -j revtex %(csv)s %(tex)s"%self.files
