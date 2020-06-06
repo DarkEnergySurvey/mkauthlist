@@ -103,19 +103,19 @@ def write_contributions(filename,data):
     out.write(output)
     out.close()
 
-
+aastex = 'aastex61' # Default aastex version
 journal2class = odict([
-    ('tex','aastex6'),
+    ('tex',aastex),
     ('revtex','revtex'),
     ('prl','revtex'),
     ('prd','revtex'),
-    ('aastex','aastex6'),     # This is for aastex v6.*
-    ('aastex5','aastex5'),    # This is for aastex v5.1
+    ('aastex',aastex),
+    ('aastex52','aastex52'),  # This is for aastex v5.2
     ('aastex61','aastex61'),  # This is for aastex v6.1
     ('aastex63','aastex63'),  # This is for aastex v6.3
-    ('apj','aastex6'),
-    ('apjl','aastex6'),
-    ('aj','aastex6'),
+    ('apj',aastex),
+    ('apjl',aastex),
+    ('aj',aastex),
     ('mnras','mnras'),
     ('elsevier','elsevier'),
     ('emulateapj','emulateapj'),
@@ -150,8 +150,8 @@ revtex_document = r"""
 \end{document}
 """
 
-### AASTEX 5 ###
-aastex5_authlist = r"""
+### AASTEX 5.2 ###
+aastex52_authlist = r"""
 \def\andname{}
 
 \author{
@@ -162,7 +162,7 @@ aastex5_authlist = r"""
 %(affiliations)s
 """
 
-aastex5_document = r"""
+aastex52_document = r"""
 \documentclass[preprint]{aastex}
 
 \begin{document}
@@ -205,7 +205,20 @@ aastex63_authlist = r"""
 
 \collaboration{1000}{(%(collaboration)s)}
 """
-aastex63_document = aastex61_document
+aastex63_document = r"""
+\documentclass[twocolumn]{aastex63}
+
+\begin{document}
+\title{%(title)s}
+
+%(authlist)s
+
+\begin{abstract}
+%(abstract)s
+\end{abstract}
+\maketitle
+\end{document}
+"""
 
 
 ### EMULATEAPJ ###
@@ -416,11 +429,11 @@ if __name__ == "__main__":
         data = data[order[:,-1].astype(int)]
                     
     ### REVTEX ###
-    if cls in ['revtex','aastex6','aastex61','aastex63']:
+    if cls in ['revtex','aastex61','aastex63']:
         if cls == 'revtex':
             document = revtex_document
             authlist = revtex_authlist
-        elif cls in ['aastex61','aastex6']:
+        elif cls in ['aastex61']:
             document = aastex61_document
             authlist = aastex61_authlist
         elif cls in ['aastex63']:
@@ -461,15 +474,15 @@ if __name__ == "__main__":
         params = dict(defaults,authors=''.join(authors))
 
     ### Separate author and affiliation ###
-    if cls in ['aastex','mnras','emulateapj']:
-        if cls == 'aastex':
-            document = aastex5_document
-            authlist = aastex5_authlist
+    if cls in ['aastex52','mnras','emulateapj']:
+        if cls == 'aastex52':
+            document = aastex52_document
+            authlist = aastex52_authlist
             affilmark = r'\altaffilmark{%s},'
             affiltext = r'\altaffiltext{%i}{%s}'
         elif cls == 'emulateapj':
             document = emulateapj_document
-            authlist = aastex5_authlist
+            authlist = aastex52_authlist
             affilmark = r'\altaffilmark{%s},'
             affiltext = r'\affil{$^{%i}$ %s}'
         elif cls == 'mnras':
