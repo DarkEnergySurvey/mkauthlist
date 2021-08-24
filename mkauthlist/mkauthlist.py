@@ -513,7 +513,7 @@ if __name__ == "__main__":
             document = aanda_document
             authlist = aanda_authlist
             affilmark = r'\inst{%s},'
-            affiltext = r'\and %s \n'
+            affiltext = r'\and %s '
         else:
             msg = "Unrecognized latex class: %s"%cls
             raise Exception(msg)
