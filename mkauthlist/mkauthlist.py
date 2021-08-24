@@ -20,7 +20,7 @@ Ordered authors - Tier 1 authors - Tier 2 authors
 
 __author__  = "Alex Drlica-Wagner"
 __email__   = "kadrlica@fnal.gov"
-try: 
+try:
     # Module is in the python path
     from mkauthlist import __version__
 except ImportError:
@@ -119,6 +119,7 @@ journal2class = odict([
     ('elsevier','elsevier'),
     ('emulateapj','emulateapj'),
     ('arxiv','arxiv'),
+    ('aanda', 'aanda')
 ])
 
 defaults = dict(
@@ -139,7 +140,7 @@ revtex_document = r"""
 \pagestyle{empty}
 \begin{document}
 \title{%(title)s}
- 
+
 %(authlist)s
 
 \begin{abstract}
@@ -166,9 +167,9 @@ aastex_document = r"""
 
 \begin{document}
 \title{%(title)s}
- 
+
 %(authlist)s
- 
+
 \begin{abstract}
 %(abstract)s
 \end{abstract}
@@ -204,9 +205,9 @@ emulateapj_document = r"""
 
 \begin{document}
 \title{%(title)s}
- 
+
 %(authlist)s
- 
+
 \begin{abstract}
 %(abstract)s
 \end{abstract}
@@ -236,9 +237,9 @@ mnras_document = r"""
 \pagestyle{empty}
 \begin{document}
 \title{%(title)s}
- 
+
 %(authlist)s
- 
+
 \maketitle
 \begin{abstract}
 %(abstract)s
@@ -260,9 +261,9 @@ elsevier_document = r"""
 
 \begin{frontmatter}
 \title{%(title)s}
- 
+
 %(authlist)s
- 
+
 \begin{abstract}
 %(abstract)s
 \end{abstract}
@@ -275,43 +276,77 @@ elsevier_document = r"""
 arxiv_authlist = r"""%(authors)s"""
 arxiv_document = arxiv_authlist
 
+### AANDA ###
+aanda_authlist = r"""
+\author{
+%(authors)s
+\begin{center} (%(collaboration)s) \end{center}
+}
+%%\vspace{0.4cm}
+\\
+\institute{
+%%\scriptsize
+%(affiliations)s
+}
+"""
+
+aanda_document = r"""
+\documentclass{aa}
+\pagestyle{empty}
+%%
+\begin{document}
+\title{%(title)s}
+
+%(authlist)s
+
+\abstract{
+%(abstract)s
+}
+
+\keywords{ -- }
+
+\maketitle
+\end{document}
+"""
+
+
 if __name__ == "__main__":
     import argparse
     description = __doc__
-    formatter=argparse.RawDescriptionHelpFormatter
+    formatter = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=description,
                                      formatter_class=formatter)
-    parser.add_argument('infile',metavar='DES-XXXX-XXXX_author_list.csv',
+    parser.add_argument('infile', metavar='DES-XXXX-XXXX_author_list.csv',
                         help="input csv file from DES PubDB")
-    parser.add_argument('outfile',metavar='DES-XXXX-XXXX_author_list.tex',
-                        nargs='?',default=None,help="output latex file (optional).")
-    parser.add_argument('-a','--aux',metavar='order.csv',
+    parser.add_argument('outfile', metavar='DES-XXXX-XXXX_author_list.tex',
+                        nargs='?', default=None, help="output latex file (optional).")
+    parser.add_argument('-a','--aux', metavar='order.csv',
                         help="auxiliary author ordering file (one name per line).")
     parser.add_argument('-c','--collab','--collaboration',
-                        default='DES Collaboration',help="collaboration name.")
-    parser.add_argument('--cntrb','--contributions',nargs='?',
-                        const='contributions.tex',help="contribution file.")
-    parser.add_argument('-d','--doc',action='store_true',
+                        default='DES Collaboration', help="collaboration name.")
+    parser.add_argument('--cntrb','--contributions', nargs='?',
+                        const='contributions.tex', help="contribution file.")
+    parser.add_argument('-d','--doc', action='store_true',
                         help="create standalone latex document.")
-    parser.add_argument('-f','--force',action='store_true',
+    parser.add_argument('-f','--force', action='store_true',
                         help="force overwrite of output.")
-    parser.add_argument('-i','--idx',default=1,type=int,
+    parser.add_argument('-i','--idx', default=1, type=int,
                         help="starting index for aastex author list \
                         (useful for multi-collaboration papers).")
-    parser.add_argument('-j','--journal',default='apj',
+    parser.add_argument('-j','--journal', default='apj',
                         choices=sorted(journal2class.keys()),
                         help="journal name or latex document class.")
-    parser.add_argument('--orcid',action='store_true',
+    parser.add_argument('--orcid', action='store_true',
                         help="include ORCID information (revtex and aastex).")
-    parser.add_argument('-s','--sort',action='store_true',
+    parser.add_argument('-s','--sort', action='store_true',
                         help="alphabetize the author list (you know you want to...).")
-    parser.add_argument('-sb','--sort-builder',action='store_true',
+    parser.add_argument('-sb','--sort-builder', action='store_true',
                         help="alphabetize the builder list.")
-    parser.add_argument('-sn','--sort-nonbuilder',action='store_true',
+    parser.add_argument('-sn','--sort-nonbuilder', action='store_true',
                         help="alphabetize the non-builder list.")
-    parser.add_argument('-v','--verbose',action='count',default=0,
+    parser.add_argument('-v','--verbose', action='count', default=0,
                         help="verbose output.")
-    parser.add_argument('-V','--version',action='version',
+    parser.add_argument('-V','--version', action='version',
                         version='%(prog)s '+__version__,
                         help="print version number and exit.")
     args = parser.parse_args()
@@ -326,9 +361,12 @@ if __name__ == "__main__":
     readlines = open(args.infile).readlines()
     # Check for unescaped umlauts
     lines = check_umlaut(readlines)
+    rows = []
+    for arow in csv.reader(lines, skipinitialspace=True):
+        if len(arow)!=0 and not arow[0].startswith('#'):
+            rows.append(arow)
 
-    rows = [r for r in csv.reader(lines,skipinitialspace=True) if not r[0].startswith('#')]
-    data = np.rec.fromrecords(rows[1:],names=rows[0])
+    data = np.rec.fromrecords(rows[1:], names=rows[0])
 
     isbuilder  = get_builders(data)
     builder    = data[isbuilder]
@@ -357,7 +395,7 @@ if __name__ == "__main__":
     authdict = odict()
 
     # Hack for umlauts in affiliations...
-    for k,v in HACK.items():
+    for k, v in HACK.items():
         logging.warn("Hacking '%s' ..."%k)
         select = (np.char.count(data['Affiliation'],k) > 0)
         data['Affiliation'][select] = v
@@ -365,9 +403,14 @@ if __name__ == "__main__":
     # Pre-sort the csv file by the auxiliary file
     if args.aux is not None:
         auxcols = ['Lastname','Firstname']
-        aux = [[r[c] for c in auxcols] for r in 
-               csv.DictReader(open(args.aux),fieldnames=auxcols) 
-               if not r[auxcols[0]].startswith('#')]
+        # aux = [[r[c] for c in auxcols] for r in
+        #        csv.DictReader(open(args.aux),fieldnames=auxcols)
+        #        if not r[auxcols[0]].startswith('#')]
+        aux = []
+        for r in csv.DictReader(open(args.aux), fieldnames=auxcols):
+            if not r[auxcols[0]].startswith('#'):
+                aux.append([r[c] for c in auxcols])
+
         aux = np.rec.fromrecords(aux,names=auxcols)
         if len(np.unique(aux)) != len(aux):
             logging.error('Non-unique names in aux file.')
@@ -375,8 +418,10 @@ if __name__ == "__main__":
             raise Exception()
 
         # This is probably not the cleanest way to do this...
-        raw = np.vstack([data['Lastname'],data['Firstname'],np.arange(len(data))]).T
-        order = np.empty((0,raw.shape[-1]),dtype=raw.dtype)
+        raw_auth = [data['Lastname'],data['Firstname'],np.arange(len(data))]
+        raw = np.vstack(raw_auth).T
+
+        order = np.empty((0, raw.shape[-1]), dtype=raw.dtype)
         for r in aux:
             lastname = r['Lastname'].strip()
             firstname = r['Firstname']
@@ -404,7 +449,7 @@ if __name__ == "__main__":
             raw = raw[~match]
         order = np.vstack([order,raw])
         data = data[order[:,-1].astype(int)]
-                    
+
     ### REVTEX ###
     if cls in ['revtex','aastex6']:
         if cls == 'revtex':
@@ -418,9 +463,9 @@ if __name__ == "__main__":
             raise Exception(msg)
 
         for i,d in enumerate(data):
-            if d['Affiliation'] == '': 
+            if d['Affiliation'] == '':
                 logging.warn("Blank affiliation for '%s'"%d['Authorname'])
-            if d['Authorname'] == '': 
+            if d['Authorname'] == '':
                 logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
                                                              d['Lastname']))
 
@@ -448,7 +493,7 @@ if __name__ == "__main__":
         params = dict(defaults,authors=''.join(authors))
 
     ### Separate author and affiliation ###
-    if cls in ['aastex','mnras','emulateapj']:
+    if cls in ['aastex','mnras','emulateapj', 'aanda']:
         if cls == 'aastex':
             document = aastex_document
             authlist = aastex_authlist
@@ -464,26 +509,32 @@ if __name__ == "__main__":
             authlist = mnras_authlist
             affilmark = r',$^{%s}$'
             affiltext = r'$^{%i}$ %s\\'
+        elif cls == 'aanda':
+            document = aanda_document
+            authlist = aanda_authlist
+            affilmark = r'\inst{%s},'
+            affiltext = r'\and %s \\'
         else:
             msg = "Unrecognized latex class: %s"%cls
             raise Exception(msg)
-            
-        for i,d in enumerate(data):
-            if d['Affiliation'] == '': 
-                logging.warn("Blank affiliation for '%s'"%d['Authorname'])
-            if d['Authorname'] == '': 
-                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
-                                                             d['Lastname']))
 
-            if (d['Affiliation'] not in affidict.keys()):
-                affidict[d['Affiliation']] = len(affidict.keys())
-            affidx = affidict[d['Affiliation']]
-            
-            if d['Authorname'] not in authdict.keys():
-                authdict[d['Authorname']] = [affidx]
+        for iauth, dat_auth in enumerate(data):
+            print(dat_auth['Authorname'])
+            if dat_auth['Affiliation'] == '':
+                logging.warn("Blank affiliation for '%s'"%dat_auth['Authorname'])
+            if dat_auth['Authorname'] == '':
+                logging.warn("Blank authorname for '%s %s'"%(dat_auth['Firstname'],
+                                                             dat_auth['Lastname']))
+
+            if (dat_auth['Affiliation'] not in affidict.keys()):
+                affidict[dat_auth['Affiliation']] = len(affidict.keys())
+            affidx = affidict[dat_auth['Affiliation']]
+
+            if dat_auth['Authorname'] not in authdict.keys():
+                authdict[dat_auth['Authorname']] = [affidx]
             else:
-                authdict[d['Authorname']].append(affidx)
-         
+                authdict[dat_auth['Authorname']].append(affidx)
+
         affiliations = []
         authors=[]
         for i, (k,v) in enumerate(authdict.items()):
@@ -495,11 +546,21 @@ if __name__ == "__main__":
                 k = 'and ' + k
             author = k + affmark
             authors.append(author)
-         
-        for k,v in affidict.items():
-            affiliation = affiltext%(v+args.idx,k)
-            affiliations.append(affiliation)
-            
+
+        if cls == 'aanda':
+            for k, v in affidict.items():
+                institution = k.rstrip(' ').lstrip(' ')
+                if institution == '':
+                    pass #continue
+                affiliation = affiltext%(institution)
+                if v == 0:
+                    affiliation = affiliation.lstrip('\\and ')
+                affiliations.append(affiliation)
+        else:
+            for k,v in affidict.items():
+                affiliation = affiltext%(v+args.idx,k)
+                affiliations.append(affiliation)
+
         params = dict(defaults,authors='\n'.join(authors),affiliations='\n'.join(affiliations))
 
     ### ELSEVIER ###
@@ -509,7 +570,7 @@ if __name__ == "__main__":
         affilmark = r'%i,'
         affiltext = r'\address[%i]{%s}'
         for i,d in enumerate(data):
-            if d['Affiliation'] == '': 
+            if d['Affiliation'] == '':
                 logging.warn("Blank affiliation for '%s'"%d['Authorname'])
             if d['Authorname'] == '':
                 logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
@@ -518,22 +579,22 @@ if __name__ == "__main__":
             if (d['Affiliation'] not in affidict.keys()):
                 affidict[d['Affiliation']] = len(affidict.keys())
             affidx = affidict[d['Affiliation']]
-            
+
             if d['Authorname'] not in authdict.keys():
                 authdict[d['Authorname']] = [affidx]
             else:
                 authdict[d['Authorname']].append(affidx)
-         
+
         affiliations = []
         authors=[]
         for k,v in authdict.items():
             author = r'\author[%s]{%s}'%(','.join([str(_v+args.idx) for _v in v]),k)
             authors.append(author)
-         
+
         for k,v in affidict.items():
             affiliation = affiltext%(v+args.idx,k)
             affiliations.append(affiliation)
-            
+
         params = dict(defaults,authors='\n'.join(authors).strip(','),affiliations='\n'.join(affiliations))
 
     ### ARXIV ###
@@ -566,12 +627,13 @@ if __name__ == "__main__":
 
     output  = "%% Author list file generated with: %s %s \n"%(parser.prog, __version__ )
     output += "%% %s %s \n"%(os.path.basename(sys.argv[0]),' '.join(sys.argv[1:]))
+
     if args.doc:
         params['authlist'] = authlist%params
         output += document%params
     else:
         output += authlist%params
-         
+
     if args.outfile is None:
         print(output)
     else:
