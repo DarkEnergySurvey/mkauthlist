@@ -13,7 +13,13 @@ class TestJournal(unittest.TestCase):
 
     def setUp(self):
         self.csv = 'example_author_list.csv'
-        self.cls = ['emulateapj.cls','mnras.cls','aastex.cls','aastex61.cls']
+        self.cls = [
+            'emulateapj.cls',
+            'mnras.cls',
+            'aastex.cls',
+            'aastex61.cls',
+            'aa.cls'
+            ]
         self.tex = self.csv.replace('.csv','.tex')
         self.aux = self.csv.replace('.csv','.aux')
         self.out = self.csv.replace('.csv','.out')
@@ -44,9 +50,9 @@ class TestJournal(unittest.TestCase):
 
         cmd = "pdflatex -interaction=nonstopmode %s"%(tex)
         print(cmd)
-        out = subprocess.check_output(cmd,shell=True)
-        shutil.copy(tex.replace('.tex','.pdf'),pdf)
-        
+        out = subprocess.check_output(cmd, shell=True)
+        shutil.copy(tex.replace('.tex','.pdf'), pdf)
+
     def test_mkauthlist(self):
         cmd = "mkauthlist -f --doc %(csv)s %(tex)s"%self.files
         print(cmd)
@@ -58,13 +64,13 @@ class TestJournal(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_emulateapj.pdf')
-     
+
     def test_mnras(self):
         cmd = "mkauthlist -f --doc -j mnras %(csv)s %(tex)s"%self.files
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         self.latex(pdf='test_mnras.pdf')
-     
+
     def test_aastex(self):
         cmd = "mkauthlist -f --doc -j aastex %(csv)s %(tex)s"%self.files
         print(cmd)
@@ -94,6 +100,12 @@ class TestJournal(unittest.TestCase):
         print(cmd)
         subprocess.check_output(cmd,shell=True)
         shutil.copy(self.tex,'test_arxiv.txt')
+
+    def test_aanda(self):
+        cmd = "mkauthlist -f --doc -j aanda %(csv)s %(tex)s"%self.files
+        print(cmd)
+        subprocess.check_output(cmd, shell=True)
+        self.latex(pdf='test_aanda.pdf')
 
 if __name__ == "__main__":
     unittest.main()
