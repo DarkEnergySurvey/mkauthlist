@@ -279,31 +279,35 @@ arxiv_document = arxiv_authlist
 ### AANDA ###
 aanda_authlist = r"""
 \author{
-%(authors)s
-\begin{center} (%(collaboration)s) \end{center}
+%(authors)s,
+%%\begin{center} (%(collaboration)s) \end{center}
 }
 %%\vspace{0.4cm}
-\\
+
+\scriptsize
 \institute{
-%%\scriptsize
 %(affiliations)s
 }
 """
 
 aanda_document = r"""
+%% If you have a really long author list, you can read A&A style manual and
+%% use the \documentclass[longauth]{aa} document style, as well as \longauthor
+%% for many collaborators.
+%% The Collaboration is included but commented out for same reasons
+
 \documentclass{aa}
-\pagestyle{empty}
-%%
+%%\pagestyle{empty}
+
 \begin{document}
 \title{%(title)s}
 
 %(authlist)s
 
-\abstract{
-%(abstract)s
-}
+\abstract{%(abstract)s}
 
-\keywords{ -- }
+%%\keywords{ -- }
+
 
 \maketitle
 \end{document}
@@ -512,7 +516,7 @@ if __name__ == "__main__":
         elif cls == 'aanda':
             document = aanda_document
             authlist = aanda_authlist
-            affilmark = r'\inst{%s},'
+            affilmark = r' \inst{%s},'
             affiltext = r'\and %s '
         else:
             msg = "Unrecognized latex class: %s"%cls
