@@ -123,9 +123,9 @@ journal2class = odict([
 ])
 
 defaults = dict(
-    title = "DES Publication Title",
+    title = "Publication Title",
     abstract=r"This is a sample document created by \texttt{%s v%s}."%(os.path.basename(__file__),__version__),
-    collaboration="The DES Collaboration"
+    collaboration="DES Collaboration"
 )
 
 ### REVTEX ###
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description,
                                      formatter_class=formatter)
     parser.add_argument('infile', metavar='DES-XXXX-XXXX_author_list.csv',
-                        help="input csv file from DES PubDB")
+                        help="input csv file from PubDB")
     parser.add_argument('outfile', metavar='DES-XXXX-XXXX_author_list.tex',
                         nargs='?', default=None, help="output latex file (optional).")
     parser.add_argument('-a','--aux', metavar='order.csv',
