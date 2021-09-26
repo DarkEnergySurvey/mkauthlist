@@ -39,6 +39,7 @@ jobs:
         # Add $CONDA/bin to built-in path
         echo $CONDA/bin >> $GITHUB_PATH
         conda update -q conda
+        conda init bash
         conda info
     - name: Create conda environment
       run: |
