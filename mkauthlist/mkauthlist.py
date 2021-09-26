@@ -493,6 +493,7 @@ if __name__ == "__main__":
             author = r'\author%s'%key+'\n'
             for v in val:
                 author += r'\affiliation{%s}'%v+'\n'
+            author += '\n'
             authors.append(author)
         params = dict(defaults,authors=''.join(authors))
 
