@@ -1,4 +1,4 @@
-[![Build](https://img.shields.io/travis/kadrlica/mkauthlist.svg)](https://travis-ci.org/kadrlica/mkauthlist)
+[![Build](https://github.com/DarkEnergySurvey/mkauthlist/actions/workflows/python-package.yml/badge.svg)](https://github.com/DarkEnergySurvey/mkauthlist/actions/workflows/python-package.yml)
 [![PyPI](https://img.shields.io/pypi/v/mkauthlist.svg)](https://pypi.python.org/pypi/mkauthlist)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../)
 
