@@ -14,7 +14,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     description="Set of simple tools for working in DES.",
     long_description="See README on GitHub: https://github.com/kadrlica/mkauthlist",
-    url='https://github.com/kadrlica/mkauthlist',
+    url='https://github.com/DarkEnergySurvey/mkauthlist',
     author='Alex Drlica-Wagner',
     author_email='kadrlica@fnal.gov',
     license='MIT',
