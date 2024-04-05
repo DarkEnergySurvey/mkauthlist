@@ -625,7 +625,7 @@ if __name__ == "__main__":
 
         authors=[]
         for k,v in authdict.items():
-            author = re.sub(r'(?<!\\)~',' ',k).replace('{','').replace('}','')
+            author = re.sub(r'(?<!\\)~',' ',k).replace(r'\ ',' ').replace('{','').replace('}','')
             authors.append(author)
 
         params = dict(defaults,authors=', '.join(authors).strip(','),affiliations='')
