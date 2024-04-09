@@ -32,7 +32,7 @@ jobs:
           texlive-latex-extra \
           texlive-latex-recommended \
           texlive-publishers \
-          texlive-latex-recommended
+          texlive-generic-recommended
     - name: Setup conda
       run: |
         # Add $CONDA/bin to built-in path
