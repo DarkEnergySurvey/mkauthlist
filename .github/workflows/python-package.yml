@@ -26,6 +26,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Setup latex
       run: |
+        sudo add-apt-repository universe
         sudo apt-get update -y
         sudo apt-get install -y --no-install-recommends \
           texlive-fonts-recommended \
