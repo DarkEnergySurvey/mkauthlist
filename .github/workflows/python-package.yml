@@ -13,27 +13,26 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
-      max-parallel: 3
+      max-parallel: 5
       matrix:
-        python-version: [2.7, 3.8]
+        python-version: [3.8, 3.9, '3.10', 3.11]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Setup latex
       run: |
-        yes "" | sudo add-apt-repository ppa:jonathonf/texlive
         sudo apt-get update -y
         sudo apt-get install -y --no-install-recommends \
           texlive-fonts-recommended \
           texlive-latex-extra \
           texlive-latex-recommended \
           texlive-publishers \
-          texlive-generic-recommended
+          texlive-plain-generic
     - name: Setup conda
       run: |
         # Add $CONDA/bin to built-in path
