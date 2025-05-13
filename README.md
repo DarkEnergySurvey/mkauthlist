@@ -66,6 +66,10 @@ It is often necessary to place a few key authors at the front of the author list
 > mkauthlist --aux order.csv example_author_list.csv example_author_list.tex
 ```
 It is possible to combine options in order to place several authors first and order the rest of the list alphabetically
+
+### Adding ORCID
+
+If the input CSV file provides ORCIDs for authors, they can be added to the output latex formatted author list with the `--orcid` option:
 ```
-> mkauthlist --sort --aux order.csv example_author_list.csv example_author_list.tex
+> mkauthlist --orcid example_author_list.csv example_author_list.tex
 ```
