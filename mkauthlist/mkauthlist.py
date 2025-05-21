@@ -112,6 +112,8 @@ journal2class = odict([
     ('aastex','aastex6'),     # This is for aastex v6.*
     ('aastex5','aastex'),     # This is for aastex v5.*
     ('aastex61','aastex6'),   # This is for aastex v6.1
+    ('aastex61','aastex6'),   # This is for aastex v6.1
+    ('aastex7','aastex7'),   # This is for aastex v7.*
     ('apj','aastex6'),
     ('apjl','aastex6'),
     ('aj','aastex6'),
@@ -196,6 +198,34 @@ aastex6_document = r"""
 %(abstract)s
 \end{abstract}
 \maketitle
+\end{document}
+"""
+
+### AASTEX 7.X ###
+aastex7_authlist = r"""
+\suppressAffiliations
+\correspondingauthor{%(corrauthor)s}
+
+%(authors)s
+
+%% Number in brackets is how many author names to put on front page
+\collaboration{1}{(%(collaboration)s)}
+"""
+
+aastex7_document = r"""
+\documentclass[twocolumn]{aastex7}
+
+\begin{document}
+\title{%(title)s}
+
+%(authlist)s
+
+\begin{abstract}
+%(abstract)s
+\end{abstract}
+\maketitle
+\newpage
+\allauthors
 \end{document}
 """
 
@@ -496,6 +526,53 @@ if __name__ == "__main__":
             author += '\n'
             authors.append(author)
         params = dict(defaults,authors=''.join(authors))
+
+    # AASTEX 7 updates
+    if cls in ['aastex7']:
+        document = aastex7_document
+        authlist = aastex7_authlist
+        # Assume first author is the corresponding author
+        corrauthor = None
+        author_email = {}
+
+        for i,d in enumerate(data):
+            if d['Affiliation'] == '':
+                logging.warn("Blank affiliation for '%s'"%d['Authorname'])
+            if d['Authorname'] == '':
+                logging.warn("Blank authorname for '%s %s'"%(d['Firstname'],
+                                                             d['Lastname']))
+
+            if corrauthor is None:
+                corrauthor = d['Authorname']
+            authorkey = '{%s}'%(d['Authorname'])
+
+            if args.orcid and d['ORCID']:
+                authorkey = "[%s, gname='%s', sname='%s']"%(d['ORCID'],d['Firstname'],d['Lastname']) + authorkey
+            else:
+                # Appears to be a bug in the AASTeX such that omitting one of them kills the compilation.
+                authorkey = "[0000-0000-0000-0000,gname='%s', sname='%s']"%(d['Firstname'],d['Lastname']) + authorkey
+
+            if authorkey not in authdict.keys():
+                authdict[authorkey] = [d['Affiliation']]
+            else:
+                authdict[authorkey].append(d['Affiliation'])
+
+            author_email[authorkey] = d['Email']
+            #if d['Authorname'] not in authdict.keys():
+            #    authdict[d['Authorname']] = [d['Affiliation']]
+            #else:
+            #    authdict[d['Authorname']].append(d['Affiliation'])
+
+        authors = []
+        for key,val in authdict.items():
+            #author = r'\author{%s}'%key+'\n'
+            author = r'\author%s'%key+'\n'
+            for v in val:
+                author += r'\affiliation{%s}'%v+'\n'
+            author += r'\email{%s}'%author_email[key] + '\n'
+            author += '\n'
+            authors.append(author)
+        params = dict(defaults,authors=''.join(authors),corrauthor=corrauthor)
 
     ### Separate author and affiliation ###
     if cls in ['aastex','mnras','emulateapj', 'aanda']:
