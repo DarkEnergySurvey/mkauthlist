@@ -208,8 +208,10 @@ aastex7_authlist = r"""
 
 %(authors)s
 
-%% Number in brackets is how many author names to put on front page
+%% Place \allauthors before \end{document} to list all authors.
+%% Number in first brackets below is how many author names to put on front page
 \collaboration{1}{(%(collaboration)s)}
+%% See https://journals.aas.org/aastexguide/#title_author for more details
 """
 
 aastex7_document = r"""
