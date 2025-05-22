@@ -112,7 +112,6 @@ journal2class = odict([
     ('aastex','aastex6'),     # This is for aastex v6.*
     ('aastex5','aastex'),     # This is for aastex v5.*
     ('aastex61','aastex6'),   # This is for aastex v6.1
-    ('aastex61','aastex6'),   # This is for aastex v6.1
     ('aastex7','aastex7'),   # This is for aastex v7.*
     ('apj','aastex6'),
     ('apjl','aastex6'),
@@ -560,10 +559,6 @@ if __name__ == "__main__":
                 authdict[authorkey].append(d['Affiliation'])
 
             author_email[authorkey] = d['Email']
-            #if d['Authorname'] not in authdict.keys():
-            #    authdict[d['Authorname']] = [d['Affiliation']]
-            #else:
-            #    authdict[d['Authorname']].append(d['Affiliation'])
 
         authors = []
         for key,val in authdict.items():
